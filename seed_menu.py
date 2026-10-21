@@ -25,7 +25,7 @@ def seed_data():
             ("4 Fromages", "Mozzarella, parmesan reggiano, chèvre crémeux, gorgonzola affiné", "Pizza", 75.0, "4 Fromages.jpg"),
             ("Thon", "Thon entier de qualité, câpres, olives noires, oignons rouges, mozzarella", "Pizza", 65.0, "Thon.jpg"),
             ("Kebab", "Viande kebab grillée à la broche, oignons, mozzarella, sauce blanche maison", "Pizza", 75.0, "Kebab.jpg"),
-            ("ChefAmin Spéciale", "Signature du Chef : viande hachée épicée, œuf fermier, poivrons, double fromage", "Pizza", 85.0, "chefamin.jpg"),
+            ("Pizza Time Spéciale", "Signature de la maison : viande hachée épicée, œuf fermier, poivrons, double mozzarella", "Pizza", 85.0, "pizzatime_special.jpg"),
             ("TexMex", "Bœuf épicé façon Texas, maïs croquant, piments jalapeños, cheddar & mozzarella", "Pizza", 80.0, "TexMex.jpg"),
             ("Calzone", "Pizza soufflée pliée au four, garnie de jambon, champignons, jaune d'œuf et mozzarella", "Pizza", 75.0, "Calzone.jpg"),
             ("Orientale", "Merguez artisanales, poivrons grillés, olives de l'Atlas, mozzarella, origan", "Pizza", 85.0, "Orientale.jpg"),

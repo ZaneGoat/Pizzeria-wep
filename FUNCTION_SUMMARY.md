@@ -1,15 +1,15 @@
 # Project Function & Architecture Summary
 
-This document summarizes the Python backend routes, models, and frontend components of **Chef Amin Pizzeria (v2.0)**.
+This document summarizes the Python backend routes, models, and frontend components of **Pizza Time (v2.0)**.
 
 ## Project File Structure
 
 - `app.py` — Main Flask application, authentication, storefront, checkout, Kitchen KDS, Admin CRUD, and JSON API routes
 - `models.py` — SQLAlchemy models (`User`, `Client`, `Pizza`, `Topping`, `Commande`, `OrderItem`, `Paiement`, `Cash`, `PizzaLivraison`, `Facture`)
 - `install.sh` — Automated setup script (virtual environment, dependencies, DB initialization, menu & sample seeding)
-- `requirements.txt` — Python package dependencies (compatible with Python 3.10–3.14+)
+- `requirements.txt` — Python package dependencies (compatible with Python 3.10-3.14+)
 - `seed_menu.py` — Idempotent menu seeder (preserves foreign keys on existing orders)
-- `seed_samples.py` — Realistic Moroccan customer & order generator
+- `seed_samples.py` — Client & order generator
 - `static/`
   - `css/style.css` — Dark-glass culinary design system & responsive layouts
   - `js/main.js` — Global cart badge synchronization, toast notifications, mobile nav & Web Audio KDS chime

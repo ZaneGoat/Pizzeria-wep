@@ -9,7 +9,7 @@ import json
 import os
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'chef_amin_pizzeria_secret_key_2026')
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'pizzatime_secret_key_2026')
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///pizzeria.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = os.path.join(app.root_path, 'static', 'img')

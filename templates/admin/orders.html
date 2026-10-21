@@ -22,7 +22,10 @@
                 <td style="color: var(--text-muted); font-size: 0.82rem; white-space: nowrap;">{{ order.created_at.strftime('%d/%m/%Y %H:%M') }}</td>
                 <td>
                     <div style="font-weight: 700; color: #fff;">{{ order.client.full_name }}</div>
-                    <a href="tel:{{ order.client.phone }}" style="color: var(--accent-color); text-decoration: none; font-size: 0.82rem; font-weight: 700;">📞 {{ order.client.phone }}</a>
+                    <a href="tel:{{ order.client.phone }}" style="color: var(--accent-color); text-decoration: none; font-size: 0.82rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.3rem;">
+                        <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                        <span>{{ order.client.phone }}</span>
+                    </a>
                 </td>
                 <td style="max-width: 280px;">
                     {% for item in order.items %}
@@ -34,7 +37,7 @@
                     {% endfor %}
                 </td>
                 <td>
-                    <span style="font-size: 0.82rem;">{{ '🚚 Livraison' if order.order_type == 'Delivery' else '🥡 Emporter' }}</span>
+                    <span style="font-size: 0.82rem;">{{ 'Livraison' if order.order_type == 'Delivery' else 'À emporter' }}</span>
                 </td>
                 <td style="color: var(--primary-color); font-weight: 900; white-space: nowrap;">{{ "%.2f"|format(order.total_price) }} DH</td>
                 <td>
@@ -50,7 +53,9 @@
                         {% elif order.status == 'Preparing' %}
                         <button type="button" onclick="updateStatus({{ order.id }}, 'Done')" class="btn-success" style="padding: 0.38rem 0.65rem; font-size: 0.7rem;">Terminer</button>
                         {% endif %}
-                        <a href="{{ url_for('order_success', order_id=order.id) }}" class="btn btn-secondary" style="padding: 0.38rem 0.65rem; font-size: 0.7rem;" title="Voir Reçu">🧾</a>
+                        <a href="{{ url_for('order_success', order_id=order.id) }}" class="btn btn-secondary" style="padding: 0.38rem 0.65rem; font-size: 0.7rem;" title="Voir Reçu">
+                            <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                        </a>
                     </div>
                 </td>
                 {% endif %}
@@ -61,25 +66,26 @@
 </div>
 {% endmacro %}
 
-{% block title %}Gestion des Commandes — Admin{% endblock %}
+{% block title %}Gestion des Commandes — Admin — Pizza Time{% endblock %}
 
 {% block content %}
 <div class="admin-orders-container">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.75rem; flex-wrap: wrap; gap: 1rem;">
         <div>
-            <h1 style="margin: 0; text-align: left; font-size: 2.1rem;">📦 Gestion des Commandes</h1>
-            <p style="margin: 0.25rem 0 0; color: var(--text-muted); font-size: 0.9rem;">Suivi des appels clients, préparations et historique des ventes</p>
+            <h1 style="margin: 0; text-align: left; font-size: 2.1rem; letter-spacing: 0.5px;">Gestion des Commandes</h1>
+            <p style="margin: 0.25rem 0 0; color: var(--text-muted); font-size: 0.88rem;">Suivi des réceptions, de la cuisson et historique comptable</p>
         </div>
         <div class="no-print" style="display: flex; gap: 0.75rem; align-items: center;">
-            <form method="GET" action="{{ url_for('admin_orders') }}" style="display: flex; gap: 0.5rem;">
+            <form method="GET" action="{{ url_for('admin_orders') }}" style="display: flex; gap: 0.5rem; position: relative;">
                 {% if selected_client %}
                 <input type="hidden" name="client_id" value="{{ selected_client.id }}">
                 {% endif %}
-                <input type="search" name="q" value="{{ search_query or '' }}" class="search-input" placeholder="🔍 Nom, tél ou #ID..." style="width: 220px; padding: 0.6rem 0.9rem; font-size: 0.85rem;">
+                <input type="search" name="q" value="{{ search_query or '' }}" class="search-input" placeholder="Nom, tél ou #ID..." style="width: 220px; padding: 0.6rem 0.9rem; font-size: 0.84rem;">
                 <button type="submit" class="btn-secondary" style="padding: 0.6rem 0.9rem;">Filtrer</button>
             </form>
             <button type="button" onclick="window.print()" class="btn-secondary" style="padding: 0.65rem 1rem; font-size: 0.8rem;">
-                🖨️ Imprimer
+                <svg class="icon icon-sm" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+                <span>Imprimer</span>
             </button>
         </div>
     </div>
@@ -87,22 +93,22 @@
     {% if selected_client %}
     <div class="card no-print" style="margin-bottom: 1.75rem; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid var(--accent-color);">
         <div>
-            <span>Affichage de l'historique du client : <strong style="color: var(--accent-color);">{{ selected_client.full_name }}</strong> ({{ selected_client.phone }})</span>
+            <span>Historique pour le client : <strong style="color: var(--accent-color);">{{ selected_client.full_name }}</strong> ({{ selected_client.phone }})</span>
         </div>
-        <a href="{{ url_for('admin_orders') }}" class="btn btn-secondary" style="padding: 0.45rem 0.9rem; font-size: 0.75rem;">✕ Voir toutes les commandes</a>
+        <a href="{{ url_for('admin_orders') }}" class="btn btn-secondary" style="padding: 0.45rem 0.9rem; font-size: 0.75rem;">Voir toutes les commandes</a>
     </div>
     {% endif %}
 
     <div class="no-print" style="display: flex; justify-content: center; gap: 0.75rem; margin-bottom: 2.25rem; flex-wrap: wrap;">
-        <button type="button" onclick="scrollToSection('new-section')" class="btn-secondary" style="border-left: 3px solid #f59e0b; font-size: 0.78rem;">📞 À Confirmer ({{ orders|selectattr('status', 'equalto', 'New')|list|length }})</button>
-        <button type="button" onclick="scrollToSection('confirmed-section')" class="btn-secondary" style="border-left: 3px solid var(--info); font-size: 0.78rem;">👨‍🍳 Confirmées ({{ orders|selectattr('status', 'equalto', 'Confirmed')|list|length }})</button>
-        <button type="button" onclick="scrollToSection('all-section')" class="btn-secondary" style="border-left: 3px solid var(--primary-color); font-size: 0.78rem;">📋 Historique Complet ({{ orders|length }})</button>
+        <button type="button" onclick="scrollToSection('new-section')" class="btn-secondary" style="border-left: 3px solid #f59e0b; font-size: 0.78rem;">À Confirmer ({{ orders|selectattr('status', 'equalto', 'New')|list|length }})</button>
+        <button type="button" onclick="scrollToSection('confirmed-section')" class="btn-secondary" style="border-left: 3px solid var(--info); font-size: 0.78rem;">En Cuisine ({{ orders|selectattr('status', 'in', ['Confirmed', 'Preparing'])|list|length }})</button>
+        <button type="button" onclick="scrollToSection('all-section')" class="btn-secondary" style="border-left: 3px solid var(--primary-color); font-size: 0.78rem;">Historique Complet ({{ orders|length }})</button>
     </div>
 
     <!-- Section: À Confirmer -->
     <div id="new-section" class="order-section" style="margin-bottom: 3rem;">
         <h3 style="color: #fbbf24; font-size: 1rem; letter-spacing: 0.8px; margin-bottom: 1rem;">
-            📞 COMMANDES À CONFIRMER PAR TÉLÉPHONE
+            COMMANDES À CONFIRMER PAR TÉLÉPHONE
         </h3>
         <div class="card" style="padding: 0; overflow: hidden; border-top: 3px solid #f59e0b;">
             {% set new_list = orders|selectattr('status', 'equalto', 'New')|list %}
@@ -117,14 +123,14 @@
     <!-- Section: Confirmées -->
     <div id="confirmed-section" class="order-section" style="margin-bottom: 3rem;">
         <h3 style="color: #60a5fa; font-size: 1rem; letter-spacing: 0.8px; margin-bottom: 1rem;">
-            👨‍🍳 COMMANDES CONFIRMÉES & EN CUISINE
+            COMMANDES VALIDÉES & EN COURS DE PRÉPARATION
         </h3>
         <div class="card" style="padding: 0; overflow: hidden; border-top: 3px solid #3b82f6;">
             {% set active_list = orders|selectattr('status', 'in', ['Confirmed', 'Preparing'])|list %}
             {% if active_list %}
                 {{ render_table(active_list, show_actions=True) }}
             {% else %}
-                <p style="padding: 2rem; text-align: center; color: var(--text-muted); margin: 0;">Aucune commande confirmée ou en préparation.</p>
+                <p style="padding: 2rem; text-align: center; color: var(--text-muted); margin: 0;">Aucune commande en préparation.</p>
             {% endif %}
         </div>
     </div>
@@ -132,7 +138,7 @@
     <!-- Section: Historique Complet -->
     <div id="all-section" class="order-section">
         <h3 style="color: var(--primary-color); font-size: 1rem; letter-spacing: 0.8px; margin-bottom: 1rem;">
-            📋 HISTORIQUE COMPLET DES COMMANDES ({{ orders|length }})
+            HISTORIQUE COMPLET DES COMMANDES ({{ orders|length }})
         </h3>
         <div class="card" style="padding: 0; overflow: hidden; border-top: 3px solid var(--primary-color);">
             {% if orders %}

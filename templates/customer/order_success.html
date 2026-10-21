@@ -1,76 +1,84 @@
 {% extends "base.html" %}
 
-{% block title %}Commande #{{ order.id }} Confirmée — Chef Amin Pizzeria{% endblock %}
+{% block title %}Commande #{{ order.id }} Confirmée — Pizza Time{% endblock %}
 
 {% block content %}
-<div class="card" style="max-width: 820px; margin: 2rem auto; border-top: 4px solid var(--success); padding: 2.5rem;">
+<div class="card" style="max-width: 820px; margin: 2rem auto; border-top: 3px solid var(--success); padding: 2.5rem;">
     <div style="text-align: center; margin-bottom: 2rem;">
-        <div style="width: 72px; height: 72px; border-radius: 50%; background: rgba(16, 185, 129, 0.18); border: 2px solid var(--success); display: inline-flex; align-items: center; justify-content: center; font-size: 2.2rem; margin-bottom: 1rem;">
-            ✓
+        <div style="width: 64px; height: 64px; border-radius: 50%; background: rgba(16, 185, 129, 0.15); border: 2px solid var(--success); display: inline-flex; align-items: center; justify-content: center; color: var(--success); margin-bottom: 1.25rem;">
+            <svg class="icon icon-lg" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
         </div>
-        <h1 style="margin: 0; font-size: 2.2rem; color: #fff;">Commande #{{ order.id }} Enregistrée !</h1>
-        <p style="color: var(--text-muted); margin: 0.5rem 0 0; font-size: 1rem;">
-            Merci <strong style="color: #fff;">{{ order.client.full_name }}</strong> ! Notre équipe vous appellera sous peu au <strong style="color: var(--accent-color);">{{ order.client.phone }}</strong>.
+        <h1 style="margin: 0; font-size: 2.1rem; color: #fff; letter-spacing: 0.5px;">Commande #{{ order.id }} Enregistrée</h1>
+        <p style="color: var(--text-muted); margin: 0.5rem 0 0; font-size: 0.95rem;">
+            Merci <strong style="color: #fff;">{{ order.client.full_name }}</strong>. Notre équipe vous appellera sous peu au <strong style="color: var(--accent-color);">{{ order.client.phone }}</strong>.
         </p>
         {% if order.facture %}
-        <div style="margin-top: 0.75rem;">
+        <div style="margin-top: 0.85rem;">
             <span class="status-badge status-Confirmed">Facture N° {{ order.facture.invoice_number }}</span>
         </div>
         {% endif %}
     </div>
 
     <!-- Live 4-Step Progress Tracker -->
-    <div class="no-print" style="background: rgba(15, 23, 42, 0.65); border: 1px solid var(--border-subtle); border-radius: 16px; padding: 1.5rem; margin-bottom: 2rem;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-            <span style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); font-weight: 700;">Suivi en Temps Réel</span>
+    <div class="no-print" style="background: rgba(12, 17, 29, 0.7); border: 1px solid var(--border-subtle); border-radius: 16px; padding: 1.5rem; margin-bottom: 2rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+            <span style="font-size: 0.76rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); font-weight: 800;">Progression en Direct</span>
             <span id="live-status-badge" class="status-badge status-{{ order.status }}">{{ order.status }}</span>
         </div>
         <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; text-align: center;">
             <div id="step-New" class="tracker-step">
-                <div class="step-dot">📞</div>
+                <div class="step-dot">
+                    <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                </div>
                 <small>1. Reçue</small>
             </div>
             <div id="step-Confirmed" class="tracker-step">
-                <div class="step-dot">✅</div>
+                <div class="step-dot">
+                    <svg class="icon icon-sm" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                </div>
                 <small>2. Confirmée</small>
             </div>
             <div id="step-Preparing" class="tracker-step">
-                <div class="step-dot">🔥</div>
+                <div class="step-dot">
+                    <svg class="icon icon-sm" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                </div>
                 <small>3. Au Four</small>
             </div>
             <div id="step-Done" class="tracker-step">
-                <div class="step-dot">🛵</div>
+                <div class="step-dot">
+                    <svg class="icon icon-sm" viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+                </div>
                 <small>4. Prête / Livrée</small>
             </div>
         </div>
     </div>
 
-    <!-- Order Details & Itemized Receipt -->
+    <!-- Order Info Grid -->
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.25rem; margin-bottom: 1.75rem;">
         <div style="background: rgba(255,255,255,0.03); padding: 1.25rem; border-radius: 14px; border: 1px solid var(--border-subtle);">
-            <h4 style="margin: 0 0 0.75rem; color: var(--accent-color); font-size: 0.85rem; text-transform: uppercase;">Informations Client</h4>
+            <h4 style="margin: 0 0 0.75rem; color: var(--accent-color); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.8px;">Destinataire</h4>
             <p style="margin: 0.3rem 0; font-size: 0.92rem;"><strong>Nom :</strong> {{ order.client.full_name }}</p>
-            <p style="margin: 0.3rem 0; font-size: 0.92rem;"><strong>Tél :</strong> {{ order.client.phone }}</p>
+            <p style="margin: 0.3rem 0; font-size: 0.92rem;"><strong>Téléphone :</strong> {{ order.client.phone }}</p>
             <p style="margin: 0.3rem 0; font-size: 0.92rem;"><strong>Date :</strong> {{ order.created_at.strftime('%d/%m/%Y à %H:%M') }}</p>
         </div>
 
         <div style="background: rgba(255,255,255,0.03); padding: 1.25rem; border-radius: 14px; border: 1px solid var(--border-subtle);">
-            <h4 style="margin: 0 0 0.75rem; color: var(--accent-color); font-size: 0.85rem; text-transform: uppercase;">Mode & Paiement</h4>
-            <p style="margin: 0.3rem 0; font-size: 0.92rem;"><strong>Type :</strong> {{ '🚚 Livraison à domicile' if order.order_type == 'Delivery' else '🥡 À emporter' }}</p>
+            <h4 style="margin: 0 0 0.75rem; color: var(--accent-color); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.8px;">Livraison & Règlement</h4>
+            <p style="margin: 0.3rem 0; font-size: 0.92rem;"><strong>Mode :</strong> {{ 'Livraison à domicile' if order.order_type == 'Delivery' else 'Retrait au restaurant' }}</p>
             {% if order.order_type == 'Delivery' and order.delivery_info %}
             <p style="margin: 0.3rem 0; font-size: 0.92rem;"><strong>Adresse :</strong> {{ order.delivery_info.address }} ({{ order.delivery_info.neighborhood or 'Standard' }})</p>
             {% endif %}
-            <p style="margin: 0.3rem 0; font-size: 0.92rem;"><strong>Paiement :</strong> {{ '💵 Espèces' if (order.payment and order.payment.method == 'Cash') else '💳 Carte Bancaire' }}</p>
+            <p style="margin: 0.3rem 0; font-size: 0.92rem;"><strong>Paiement :</strong> {{ 'Espèces' if (order.payment and order.payment.method == 'Cash') else 'Carte Bancaire' }}</p>
         </div>
     </div>
 
-    <!-- Itemized Table -->
+    <!-- Items Table -->
     <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-subtle); border-radius: 14px; overflow: hidden; margin-bottom: 2rem;">
         <table class="data-table">
             <thead>
                 <tr>
                     <th>Article</th>
-                    <th style="text-align: center;">Qté</th>
+                    <th style="text-align: center;">Quantité</th>
                     <th style="text-align: right;">Prix Unitaire</th>
                     <th style="text-align: right;">Sous-total</th>
                 </tr>
@@ -88,15 +96,21 @@
                 {% endfor %}
             </tbody>
         </table>
-        <div style="padding: 1.25rem; background: rgba(15, 23, 42, 0.5); border-top: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center;">
-            <span style="font-weight: 800; font-size: 1.1rem;">TOTAL TTC</span>
+        <div style="padding: 1.25rem; background: rgba(12, 17, 29, 0.7); border-top: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-weight: 800; font-size: 1.05rem; letter-spacing: 0.5px;">TOTAL COMMANDE</span>
             <span style="font-size: 1.65rem; font-weight: 900; color: var(--primary-color);">{{ "%.2f"|format(order.total_price) }} DH</span>
         </div>
     </div>
 
     <div class="no-print" style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
-        <button type="button" onclick="window.print()" class="btn-secondary">🖨️ Imprimer le Reçu</button>
-        <a href="{{ url_for('boutique') }}" class="btn">🍕 Retourner à la Carte</a>
+        <button type="button" onclick="window.print()" class="btn-secondary">
+            <svg class="icon icon-sm" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+            <span>Imprimer Reçu</span>
+        </button>
+        <a href="{{ url_for('boutique') }}" class="btn">
+            <svg class="icon icon-sm" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            <span>Retour à la Carte</span>
+        </a>
     </div>
 </div>
 
@@ -111,19 +125,20 @@
 .tracker-step .step-dot {
     width: 44px;
     height: 44px;
-    margin: 0 auto 0.4rem;
+    margin: 0 auto 0.45rem;
     border-radius: 50%;
-    background: rgba(255,255,255,0.08);
-    border: 2px solid var(--border-subtle);
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--border-subtle);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.2rem;
+    color: #94a3b8;
 }
 .tracker-step.active .step-dot {
-    background: rgba(16, 185, 129, 0.2);
+    background: rgba(16, 185, 129, 0.18);
     border-color: var(--success);
-    box-shadow: 0 0 15px rgba(16, 185, 129, 0.35);
+    color: var(--success);
+    box-shadow: 0 0 16px rgba(16, 185, 129, 0.3);
 }
 </style>
 {% endblock %}

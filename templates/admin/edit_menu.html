@@ -1,18 +1,21 @@
 {% extends "base.html" %}
 
-{% block title %}Modifier {{ pizza.name }} — Admin{% endblock %}
+{% block title %}Modifier {{ pizza.name }} — Admin — Pizza Time{% endblock %}
 
 {% block content %}
 <div class="edit-container" style="max-width: 780px; margin: 1.5rem auto;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
         <div>
-            <h1 style="margin: 0; text-align: left; font-size: 2rem;">✏️ Modifier l'Article</h1>
+            <h1 style="margin: 0; text-align: left; font-size: 2rem; letter-spacing: 0.5px;">Modifier l'Article</h1>
             <p style="margin: 0.25rem 0 0; color: var(--text-muted);">{{ pizza.name }}</p>
         </div>
-        <a href="{{ url_for('admin_menu') }}" class="btn btn-secondary">← Retour au Menu</a>
+        <a href="{{ url_for('admin_menu') }}" class="btn btn-secondary">
+            <svg class="icon icon-sm" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            <span>Retour au Menu</span>
+        </a>
     </div>
 
-    <div class="card" style="border-top: 4px solid var(--accent-color); padding: 2.25rem;">
+    <div class="card" style="border-top: 3px solid var(--accent-color); padding: 2.25rem;">
         <form method="POST" enctype="multipart/form-data" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
             <div class="form-group" style="grid-column: span 2; margin: 0;">
                 <label>Nom de l'article</label>
@@ -22,33 +25,35 @@
             <div class="form-group" style="margin: 0;">
                 <label>Catégorie</label>
                 <select name="category" required>
-                    <option value="Pizza" {% if pizza.category == 'Pizza' %}selected{% endif %}>🍕 Pizza</option>
-                    <option value="Top Offre" {% if pizza.category == 'Top Offre' %}selected{% endif %}>🔥 Top Offre</option>
-                    <option value="Dessert" {% if pizza.category == 'Dessert' %}selected{% endif %}>🍰 Dessert</option>
-                    <option value="Boisson" {% if pizza.category == 'Boisson' %}selected{% endif %}>🥤 Boisson</option>
+                    <option value="Pizza" {% if pizza.category == 'Pizza' %}selected{% endif %}>Pizzas</option>
+                    <option value="Top Offre" {% if pizza.category == 'Top Offre' %}selected{% endif %}>Top Offres</option>
+                    <option value="Dessert" {% if pizza.category == 'Dessert' %}selected{% endif %}>Desserts</option>
+                    <option value="Boisson" {% if pizza.category == 'Boisson' %}selected{% endif %}>Boissons</option>
                 </select>
             </div>
 
             <div class="form-group" style="margin: 0;">
-                <label>Prix (DH)</label>
+                <label>Prix unitaire (DH)</label>
                 <input type="number" step="0.01" min="1" name="price" value="{{ pizza.base_price }}" required style="color: var(--accent-color); font-weight: 800;">
             </div>
 
             <div class="form-group" style="grid-column: span 2; margin: 0;">
-                <label>Description / Ingrédients</label>
+                <label>Description & Ingrédients</label>
                 <textarea name="description" rows="3">{{ pizza.description or '' }}</textarea>
             </div>
 
             <div class="form-group" style="grid-column: span 2; margin: 0;">
-                <label>Photo de l'article</label>
-                <div style="display: flex; align-items: center; gap: 1.5rem; background: rgba(255,255,255,0.03); padding: 1.25rem; border-radius: 14px; border: 1px dashed var(--border-strong);">
+                <label>Visuel de l'article</label>
+                <div style="display: flex; align-items: center; gap: 1.5rem; background: rgba(255,255,255,0.03); padding: 1.25rem; border-radius: 14px; border: 1px dashed var(--border-medium);">
                     {% if pizza.photo_url %}
-                    <img src="{{ url_for('static', filename='img/' + pizza.photo_url) }}" alt="{{ pizza.name }}" style="width: 96px; height: 96px; object-fit: cover; border-radius: 12px; border: 2px solid var(--primary-color);">
+                    <img src="{{ url_for('static', filename='img/' + pizza.photo_url) }}" alt="{{ pizza.name }}" style="width: 96px; height: 96px; object-fit: cover; border-radius: 12px; border: 1px solid var(--border-subtle);">
                     {% else %}
-                    <div style="width: 96px; height: 96px; background: rgba(255,255,255,0.06); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 2rem;">🍕</div>
+                    <div style="width: 96px; height: 96px; background: rgba(255,255,255,0.06); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--text-subtle);">
+                        <svg class="icon icon-lg" viewBox="0 0 24 24"><polygon points="12 2 2 22 22 22 12 2"></polygon></svg>
+                    </div>
                     {% endif %}
                     <div style="flex: 1;">
-                        <p style="margin: 0 0 0.5rem; font-size: 0.78rem; color: var(--text-muted); font-weight: 700;">REMPLACER L'IMAGE :</p>
+                        <p style="margin: 0 0 0.5rem; font-size: 0.76rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px;">Remplacer l'image :</p>
                         <input type="file" name="photo" accept="image/*">
                     </div>
                 </div>
@@ -56,7 +61,8 @@
 
             <div style="grid-column: span 2; margin-top: 0.5rem;">
                 <button type="submit" style="width: 100%; padding: 1.1rem; font-size: 0.95rem;">
-                    💾 ENREGISTRER LES MODIFICATIONS
+                    <span>Enregistrer les Modifications</span>
+                    <svg class="icon icon-sm" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
                 </button>
             </div>
         </form>

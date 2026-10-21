@@ -1,25 +1,31 @@
 {% extends "base.html" %}
 
-{% block title %}Administration — Chef Amin Pizzeria{% endblock %}
+{% block title %}Administration — Pizza Time{% endblock %}
 
 {% block content %}
 <div class="dashboard-grid">
-    <div class="card" style="border-top: 4px solid var(--primary-color);">
-        <div style="font-size: 2.8rem; margin-bottom: 0.75rem;">🍕</div>
+    <div class="card" style="border-top: 3px solid var(--primary-color);">
+        <div style="color: var(--primary-color); margin-bottom: 1rem;">
+            <svg class="icon icon-lg" style="width: 2.8rem; height: 2.8rem;" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+        </div>
         <h3>Gestion du Menu</h3>
-        <p style="color: var(--text-muted);">Ajoutez, modifiez ou masquez des articles. Gérez les photos et les tarifs en temps réel.</p>
-        <a href="{{ url_for('admin_menu') }}" class="btn" style="width: 100%; margin-top: 1rem;">Ouvrir le Menu</a>
+        <p style="color: var(--text-muted);">Ajoutez, modifiez ou masquez des articles. Gérez les visuels et les tarifs en temps réel.</p>
+        <a href="{{ url_for('admin_menu') }}" class="btn" style="width: 100%; margin-top: 1rem;">Ouvrir la Carte</a>
     </div>
 
-    <div class="card" style="border-top: 4px solid var(--accent-color);">
-        <div style="font-size: 2.8rem; margin-bottom: 0.75rem;">📦</div>
+    <div class="card" style="border-top: 3px solid var(--accent-color);">
+        <div style="color: var(--accent-color); margin-bottom: 1rem;">
+            <svg class="icon icon-lg" style="width: 2.8rem; height: 2.8rem;" viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+        </div>
         <h3>Commandes Clients</h3>
-        <p style="color: var(--text-muted);">Suivez l'historique complet des ventes, confirmez les appels et gérez les statuts.</p>
+        <p style="color: var(--text-muted);">Suivez l'historique complet des commandes, confirmez les appels et validez les statuts.</p>
         <a href="{{ url_for('admin_orders') }}" class="btn" style="width: 100%; margin-top: 1rem;">Gérer les Commandes</a>
     </div>
 
-    <div class="card" style="border-top: 4px solid var(--success);">
-        <div style="font-size: 2.8rem; margin-bottom: 0.75rem;">📊</div>
+    <div class="card" style="border-top: 3px solid var(--success);">
+        <div style="color: var(--success); margin-bottom: 1rem;">
+            <svg class="icon icon-lg" style="width: 2.8rem; height: 2.8rem;" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+        </div>
         <h3>Analyses & Performance</h3>
         <p style="color: var(--text-muted);">Visualisez votre chiffre d'affaires, vos paniers moyens et vos meilleures ventes.</p>
         <a href="{{ url_for('admin_analytics') }}" class="btn btn-success" style="width: 100%; margin-top: 1rem;">Ouvrir les Rapports</a>

@@ -5,7 +5,7 @@ from models import db, User, Client, Pizza, Commande, OrderItem, Paiement, Cash,
 from werkzeug.security import generate_password_hash
 
 # Realistic Moroccan Data
-FIRST_NAMES = ["Amine", "Youssef", "Fatima", "Zineb", "Omar", "Hamza", "Leyla", "Sami", "Driss", "Khadija", "Hassan", "Meriem"]
+FIRST_NAMES = ["Karim", "Youssef", "Fatima", "Zineb", "Omar", "Hamza", "Leyla", "Sami", "Driss", "Khadija", "Hassan", "Meriem"]
 LAST_NAMES = ["Bennani", "Alaoui", "Tazi", "Idrissi", "Mansouri", "Chraibi", "Fassi", "Zouhair", "Lahlou", "El Amrani"]
 NEIGHBORHOODS = ["Gauthier", "Maarif", "Bourgogne", "Racine", "Anfa", "Oasis", "Belvédère", "Sidi Maarouf", "Ain Diab"]
 STREETS = ["Rue Taha Hussein", "Boulevard Zerktouni", "Rue Molière", "Boulevard d'Anfa", "Rue de Rome", "Avenue 2 Mars"]

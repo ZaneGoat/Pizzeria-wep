@@ -1,24 +1,25 @@
 {% extends "base.html" %}
 
-{% block title %}Kitchen Control Center — Staff KDS{% endblock %}
+{% block title %}Kitchen Display System (KDS) — Pizza Time{% endblock %}
 
 {% block content %}
 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.75rem; flex-wrap: wrap; gap: 1rem;">
     <div>
-        <h1 style="text-align: left; margin: 0; font-size: 2.1rem;">📟 Kitchen Control Center (KDS)</h1>
-        <p style="margin: 0.25rem 0 0; color: var(--text-muted); font-size: 0.9rem;">
-            Suivi en temps réel des commandes • Mise à jour automatique active
+        <h1 style="text-align: left; margin: 0; font-size: 2.1rem; letter-spacing: 0.5px;">Kitchen Control Center (KDS)</h1>
+        <p style="margin: 0.25rem 0 0; color: var(--text-muted); font-size: 0.88rem;">
+            Flux de préparation en temps réel • Rafraîchissement automatique
         </p>
     </div>
 
     <div style="display: flex; gap: 0.6rem; flex-wrap: wrap; align-items: center;">
         <button type="button" onclick="playKitchenChime()" class="btn-secondary" style="padding: 0.55rem 0.95rem; font-size: 0.78rem;" title="Tester l'alerte sonore">
-            🔔 Alerte Sonore
+            <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+            <span>Signal Sonore</span>
         </button>
-        <button type="button" data-filter="all" onclick="filterOrders('all', this)" class="filter-btn active">Tout</button>
-        <button type="button" data-filter="New" onclick="filterOrders('New', this)" class="filter-btn">📞 À Confirmer</button>
-        <button type="button" data-filter="Confirmed" onclick="filterOrders('Confirmed', this)" class="filter-btn">👨‍🍳 Confirmées</button>
-        <button type="button" data-filter="Preparing" onclick="filterOrders('Preparing', this)" class="filter-btn">🔥 Au Four</button>
+        <button type="button" data-filter="all" onclick="filterOrders('all', this)" class="filter-btn active">Toutes</button>
+        <button type="button" data-filter="New" onclick="filterOrders('New', this)" class="filter-btn">À Confirmer</button>
+        <button type="button" data-filter="Confirmed" onclick="filterOrders('Confirmed', this)" class="filter-btn">Confirmées</button>
+        <button type="button" data-filter="Preparing" onclick="filterOrders('Preparing', this)" class="filter-btn">En Cuisine</button>
     </div>
 </div>
 
@@ -27,45 +28,47 @@
 {% set preparing_orders = orders|selectattr('status', 'equalto', 'Preparing')|list %}
 
 <div class="order-board">
-    <!-- Column 1: À Confirmer (Appel requis) -->
-    <div class="column" id="unconfirmed-orders" style="border-top: 4px solid #f59e0b;">
-        <h2 style="background: rgba(245, 158, 11, 0.16); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.35);">
-            <span>📞 À CONFIRMER (APPEL)</span>
-            <span class="cart-badge" style="background: #f59e0b; color: #0f172a;">{{ new_orders|length }}</span>
+    <!-- Column 1: À Confirmer -->
+    <div class="column" id="unconfirmed-orders" style="border-top: 3px solid #f59e0b;">
+        <h2 style="background: rgba(245, 158, 11, 0.12); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3);">
+            <span>À CONFIRMER (APPEL)</span>
+            <span class="cart-badge" style="background: #f59e0b; color: #090d16;">{{ new_orders|length }}</span>
         </h2>
         <div class="orders-list">
             {% for order in new_orders %}
             <div class="order-card" data-status="New" style="border-left-color: #f59e0b;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.65rem;">
-                    <span style="font-weight: 900; font-size: 1.2rem; color: #fff;">#{{ order.id }}</span>
-                    <span style="background: rgba(255,255,255,0.08); color: #cbd5e1; padding: 0.2rem 0.55rem; border-radius: 6px; font-size: 0.75rem; font-weight: 700;">
-                        🕒 {{ order.created_at.strftime('%d/%m %H:%M') }}
+                    <span style="font-weight: 900; font-size: 1.25rem; color: #fff;">#{{ order.id }}</span>
+                    <span style="background: rgba(255,255,255,0.06); color: #cbd5e1; padding: 0.2rem 0.55rem; border-radius: 6px; font-size: 0.74rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.3rem;">
+                        <svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                        <span>{{ order.created_at.strftime('%d/%m %H:%M') }}</span>
                     </span>
                 </div>
 
                 <div style="margin-bottom: 0.6rem;">
-                    <div style="font-weight: 700; color: #fff;">👤 {{ order.client.full_name }}</div>
+                    <div style="font-weight: 800; color: #fff; font-size: 1rem;">{{ order.client.full_name }}</div>
                     <div style="margin-top: 0.25rem;">
-                        <a href="tel:{{ order.client.phone }}" style="color: var(--accent-color); font-weight: 800; text-decoration: none; font-size: 0.92rem;">
-                            📞 {{ order.client.phone }}
+                        <a href="tel:{{ order.client.phone }}" style="color: var(--accent-color); font-weight: 800; text-decoration: none; font-size: 0.92rem; display: inline-flex; align-items: center; gap: 0.4rem;">
+                            <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                            <span>{{ order.client.phone }}</span>
                         </a>
                     </div>
                 </div>
 
                 <div style="font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.75rem; padding: 0.45rem 0.65rem; background: rgba(255,255,255,0.04); border-radius: 8px;">
                     {% if order.order_type == 'Delivery' %}
-                        🚚 <strong>LIVRAISON</strong> — {{ order.delivery_info.address if order.delivery_info else order.client.address }}
+                        <strong>LIVRAISON</strong> — {{ order.delivery_info.address if order.delivery_info else order.client.address }}
                         {% if order.delivery_info and order.delivery_info.neighborhood %}
                             <span style="color: var(--accent-color);">({{ order.delivery_info.neighborhood }})</span>
                         {% endif %}
                     {% else %}
-                        🥡 <strong>À EMPORTER</strong> (Retrait sur place)
+                        <strong>RETRAIT SUR PLACE</strong> (À emporter)
                     {% endif %}
                 </div>
 
-                <!-- Order Items List -->
-                <div style="background: rgba(11, 15, 25, 0.55); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 0.65rem 0.8rem; margin-bottom: 0.85rem;">
-                    <div style="font-size: 0.7rem; text-transform: uppercase; color: var(--text-muted); font-weight: 800; margin-bottom: 0.35rem;">Articles commandés :</div>
+                <!-- Items to prepare -->
+                <div style="background: rgba(9, 13, 22, 0.6); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 0.65rem 0.8rem; margin-bottom: 0.85rem;">
+                    <div style="font-size: 0.68rem; text-transform: uppercase; color: var(--text-muted); font-weight: 800; letter-spacing: 0.6px; margin-bottom: 0.35rem;">Articles commandés :</div>
                     {% for item in order.items %}
                     <div style="display: flex; justify-content: space-between; font-size: 0.88rem; padding: 0.15rem 0;">
                         <span><strong style="color: var(--accent-color);">{{ item.quantity }}×</strong> {{ item.pizza.name if item.pizza else 'Article #' ~ item.pizza_id }}</span>
@@ -76,22 +79,22 @@
                 </div>
 
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem; font-size: 0.9rem;">
-                    <span style="color: var(--text-muted);">{{ '💵 Cash' if (order.payment and order.payment.method == 'Cash') else '💳 Carte' }}</span>
+                    <span style="color: var(--text-muted); font-size: 0.82rem;">{{ 'Espèces' if (order.payment and order.payment.method == 'Cash') else 'Carte Bancaire' }}</span>
                     <strong style="color: var(--primary-color); font-size: 1.05rem;">{{ "%.2f"|format(order.total_price) }} DH</strong>
                 </div>
 
                 <div style="display: flex; gap: 0.5rem;">
-                    <button type="button" onclick="moveOrder({{ order.id }}, 'Confirmed')" class="btn-success" style="flex: 1; padding: 0.7rem; font-size: 0.78rem;">
-                        ✅ CONFIRMER
+                    <button type="button" onclick="moveOrder({{ order.id }}, 'Confirmed')" class="btn-success" style="flex: 1; padding: 0.65rem; font-size: 0.78rem;">
+                        <svg class="icon icon-sm" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        <span>Confirmer Appel</span>
                     </button>
-                    <button type="button" onclick="moveOrder({{ order.id }}, 'Cancelled')" class="btn-secondary" style="padding: 0.7rem 0.85rem; font-size: 0.78rem; color: #fca5a5;" title="Annuler">
-                        ✕
+                    <button type="button" onclick="moveOrder({{ order.id }}, 'Cancelled')" class="btn-secondary" style="padding: 0.65rem 0.85rem; font-size: 0.78rem; color: #fca5a5;" title="Annuler">
+                        <svg class="icon icon-sm" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                     </button>
                 </div>
             </div>
             {% else %}
             <div style="text-align: center; padding: 3rem 1rem; color: var(--text-muted);">
-                <div style="font-size: 2.2rem; margin-bottom: 0.4rem;">✨</div>
                 <p style="margin: 0; font-size: 0.9rem;">Aucun appel en attente</p>
             </div>
             {% endfor %}
@@ -99,24 +102,26 @@
     </div>
 
     <!-- Column 2: Confirmées / À Préparer -->
-    <div class="column" id="confirmed-orders" style="border-top: 4px solid var(--primary-color);">
-        <h2 style="background: rgba(255, 71, 87, 0.16); color: #ff6b81; border: 1px solid rgba(255, 71, 87, 0.35);">
-            <span>👨‍🍳 CONFIRMÉES / EN ATTENTE</span>
+    <div class="column" id="confirmed-orders" style="border-top: 3px solid var(--primary-color);">
+        <h2 style="background: rgba(255, 59, 83, 0.12); color: #ff6b81; border: 1px solid rgba(255, 59, 83, 0.3);">
+            <span>CONFIRMÉES / EN ATTENTE</span>
             <span class="cart-badge" style="background: var(--primary-color); color: #fff;">{{ confirmed_orders|length }}</span>
         </h2>
         <div class="orders-list">
             {% for order in confirmed_orders %}
             <div class="order-card" data-status="Confirmed" style="border-left-color: var(--primary-color);">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.65rem;">
-                    <span style="font-weight: 900; font-size: 1.2rem; color: #fff;">#{{ order.id }}</span>
-                    <span class="status-badge status-Confirmed">CONFIRMÉE ✓</span>
+                    <span style="font-weight: 900; font-size: 1.25rem; color: #fff;">#{{ order.id }}</span>
+                    <span class="status-badge status-Confirmed">Validée</span>
                 </div>
 
-                <p style="margin: 0 0 0.6rem; font-weight: 700;">👤 {{ order.client.full_name }} • <small style="color: var(--text-muted);">{{ 'Livraison' if order.order_type == 'Delivery' else 'À Emporter' }}</small></p>
+                <p style="margin: 0 0 0.6rem; font-weight: 800; font-size: 0.95rem;">
+                    {{ order.client.full_name }} • <small style="color: var(--text-muted);">{{ 'Livraison' if order.order_type == 'Delivery' else 'À Emporter' }}</small>
+                </p>
 
                 <!-- Order Items List -->
-                <div style="background: rgba(11, 15, 25, 0.55); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 0.65rem 0.8rem; margin-bottom: 0.85rem;">
-                    <div style="font-size: 0.7rem; text-transform: uppercase; color: var(--text-muted); font-weight: 800; margin-bottom: 0.35rem;">À préparer :</div>
+                <div style="background: rgba(9, 13, 22, 0.6); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 0.65rem 0.8rem; margin-bottom: 0.85rem;">
+                    <div style="font-size: 0.68rem; text-transform: uppercase; color: var(--text-muted); font-weight: 800; letter-spacing: 0.6px; margin-bottom: 0.35rem;">Recettes à confectionner :</div>
                     {% for item in order.items %}
                     <div style="display: flex; justify-content: space-between; font-size: 0.92rem; font-weight: 700; padding: 0.18rem 0;">
                         <span><strong style="color: var(--accent-color);">{{ item.quantity }}×</strong> {{ item.pizza.name if item.pizza else 'Article #' ~ item.pizza_id }}</span>
@@ -125,36 +130,38 @@
                 </div>
 
                 <button type="button" onclick="moveOrder({{ order.id }}, 'Preparing')" style="width: 100%; padding: 0.75rem; font-size: 0.8rem;">
-                    🔥 LANCER AU FOUR
+                    <svg class="icon icon-sm" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                    <span>Lancer au Four</span>
                 </button>
             </div>
             {% else %}
             <div style="text-align: center; padding: 3rem 1rem; color: var(--text-muted);">
-                <div style="font-size: 2.2rem; margin-bottom: 0.4rem;">👨‍🍳</div>
-                <p style="margin: 0; font-size: 0.9rem;">Aucune commande en file d'attente</p>
+                <p style="margin: 0; font-size: 0.9rem;">File d'attente cuisine vide</p>
             </div>
             {% endfor %}
         </div>
     </div>
 
     <!-- Column 3: En Préparation (Au Four) -->
-    <div class="column" id="preparing-orders" style="border-top: 4px solid var(--accent-color);">
-        <h2 style="background: rgba(255, 165, 2, 0.16); color: var(--accent-color); border: 1px solid rgba(255, 165, 2, 0.35);">
-            <span>🔥 EN CUISINE (AU FOUR)</span>
-            <span class="cart-badge" style="background: var(--accent-color); color: #0f172a;">{{ preparing_orders|length }}</span>
+    <div class="column" id="preparing-orders" style="border-top: 3px solid var(--accent-color);">
+        <h2 style="background: rgba(245, 158, 11, 0.12); color: var(--accent-color); border: 1px solid rgba(245, 158, 11, 0.3);">
+            <span>EN CUISSON (AU FOUR)</span>
+            <span class="cart-badge" style="background: var(--accent-color); color: #090d16;">{{ preparing_orders|length }}</span>
         </h2>
         <div class="orders-list">
             {% for order in preparing_orders %}
             <div class="order-card" data-status="Preparing" style="border-left-color: var(--accent-color);">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.65rem;">
-                    <span style="font-weight: 900; font-size: 1.2rem; color: #fff;">#{{ order.id }}</span>
-                    <span style="color: var(--accent-color); font-weight: 800; font-size: 0.75rem; animation: pulse 1.5s infinite;">🔥 CUISSON...</span>
+                    <span style="font-weight: 900; font-size: 1.25rem; color: #fff;">#{{ order.id }}</span>
+                    <span style="color: var(--accent-color); font-weight: 800; font-size: 0.74rem; letter-spacing: 0.8px; text-transform: uppercase;">Cuisson active</span>
                 </div>
 
-                <p style="margin: 0 0 0.6rem; font-weight: 700;">👤 {{ order.client.full_name }} • <small style="color: var(--text-muted);">{{ '🚚 Livraison' if order.order_type == 'Delivery' else '🥡 À Emporter' }}</small></p>
+                <p style="margin: 0 0 0.6rem; font-weight: 800; font-size: 0.95rem;">
+                    {{ order.client.full_name }} • <small style="color: var(--text-muted);">{{ 'Livraison' if order.order_type == 'Delivery' else 'À Emporter' }}</small>
+                </p>
 
                 <!-- Order Items List -->
-                <div style="background: rgba(11, 15, 25, 0.55); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 0.65rem 0.8rem; margin-bottom: 0.85rem;">
+                <div style="background: rgba(9, 13, 22, 0.6); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 0.65rem 0.8rem; margin-bottom: 0.85rem;">
                     {% for item in order.items %}
                     <div style="display: flex; justify-content: space-between; font-size: 0.92rem; font-weight: 700; padding: 0.18rem 0;">
                         <span><strong style="color: var(--accent-color);">{{ item.quantity }}×</strong> {{ item.pizza.name if item.pizza else 'Article #' ~ item.pizza_id }}</span>
@@ -163,13 +170,13 @@
                 </div>
 
                 <button type="button" onclick="moveOrder({{ order.id }}, 'Done')" class="btn-warning" style="width: 100%; padding: 0.75rem; font-size: 0.8rem;">
-                    ✅ PRÊTE / ENVOYER EN LIVRAISON
+                    <svg class="icon icon-sm" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    <span>Prête / Envoyer en Livraison</span>
                 </button>
             </div>
             {% else %}
             <div style="text-align: center; padding: 3rem 1rem; color: var(--text-muted);">
-                <div style="font-size: 2.2rem; margin-bottom: 0.4rem;">🍕</div>
-                <p style="margin: 0; font-size: 0.9rem;">Aucune commande au four actuellement</p>
+                <p style="margin: 0; font-size: 0.9rem;">Aucune pizza au four actuellement</p>
             </div>
             {% endfor %}
         </div>
@@ -178,7 +185,7 @@
 
 <style>
 .filter-btn {
-    background: rgba(255, 255, 255, 0.06);
+    background: rgba(255, 255, 255, 0.05);
     border: 1px solid var(--border-subtle);
     padding: 0.55rem 1.1rem;
     border-radius: 10px;
@@ -186,15 +193,12 @@
     font-weight: 700;
     font-size: 0.8rem;
     box-shadow: none;
+    color: #cbd5e1;
 }
 .filter-btn.active {
     background: linear-gradient(135deg, var(--primary-color), #e11d48);
     border-color: transparent;
     color: white;
-}
-@keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.45; }
 }
 </style>
 {% endblock %}

@@ -1,46 +1,59 @@
 {% extends "base.html" %}
 
-{% block title %}Notre Carte — Chef Amin Pizzeria{% endblock %}
+{% block title %}Notre Carte — Pizza Time{% endblock %}
 
 {% block content %}
 <!-- Hero Banner -->
 <section class="hero-banner">
     <div>
-        <div class="hero-badge">🔥 Pâte Fraîche Pétrie Chaque Jour</div>
-        <h1 class="hero-title">L'Art de la Pizza <span>Artisanale</span> Livrée Chez Vous</h1>
+        <div class="hero-tag">
+            <svg class="icon icon-sm" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+            <span>Pâte Fraîche & Cuisson au Feu de Bois</span>
+        </div>
+        <h1 class="hero-title">L'Excellence de la Pizza <span>Artisanale</span> à Domicile</h1>
         <p class="hero-subtitle">
-            Ingrédients frais sélectionnés avec soin, mozzarella fondante et recettes signatures du Chef Amin. Commandez en quelques clics.
+            Ingrédients nobles, mozzarella fior di latte et sauces signatures mijotées maison par Pizza Time. Commandez en direct et suivez votre livraison en temps réel.
         </p>
         <div class="hero-features">
-            <div class="hero-feature-pill">🚚 Livraison Gratuite dès 60 DH</div>
-            <div class="hero-feature-pill">⏱️ 30 – 45 min Chrono</div>
-            <div class="hero-feature-pill">🧀 100% Mozzarella Fraîche</div>
+            <div class="hero-feature-pill">
+                <svg class="icon" viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+                <span>Livraison Offerte dès 60 DH</span>
+            </div>
+            <div class="hero-feature-pill">
+                <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                <span>Préparation & Livraison 30–45 min</span>
+            </div>
+            <div class="hero-feature-pill">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
+                <span>100% Ingrédients Frais</span>
+            </div>
         </div>
     </div>
     <div style="position: relative;">
-        <img src="{{ url_for('static', filename='img/Menu1.png') }}" alt="Chef Amin Menu" style="width: 100%; max-height: 250px; object-fit: cover; border-radius: 20px; border: 2px solid rgba(255, 71, 87, 0.5); box-shadow: 0 15px 35px rgba(0,0,0,0.6);">
+        <img src="{{ url_for('static', filename='img/Menu1.png') }}" alt="Pizza Time Carte" style="width: 100%; max-height: 250px; object-fit: cover; border-radius: 20px; border: 1px solid var(--border-medium); box-shadow: var(--shadow-lg);">
     </div>
 </section>
 
 <!-- Filter & Search Toolbar -->
 <div class="menu-toolbar">
     <div class="category-pills">
-        <button type="button" class="category-pill active" onclick="filterMenuCategory('all', this)">✨ Tout Voir</button>
-        <button type="button" class="category-pill" onclick="filterMenuCategory('Top Offre', this)">🔥 Top Offres</button>
-        <button type="button" class="category-pill" onclick="filterMenuCategory('Pizza', this)">🍕 Pizzas</button>
-        <button type="button" class="category-pill" onclick="filterMenuCategory('Dessert', this)">🍰 Desserts</button>
-        <button type="button" class="category-pill" onclick="filterMenuCategory('Boisson', this)">🥤 Boissons</button>
+        <button type="button" class="category-pill active" onclick="filterMenuCategory('all', this)">Tous les Articles</button>
+        <button type="button" class="category-pill" onclick="filterMenuCategory('Top Offre', this)">Top Offres</button>
+        <button type="button" class="category-pill" onclick="filterMenuCategory('Pizza', this)">Pizzas</button>
+        <button type="button" class="category-pill" onclick="filterMenuCategory('Dessert', this)">Desserts</button>
+        <button type="button" class="category-pill" onclick="filterMenuCategory('Boisson', this)">Boissons</button>
     </div>
-    <div style="display: flex; align-items: center; gap: 0.75rem; flex: 1; max-width: 340px;">
-        <input type="search" id="menu-search-input" class="search-input" placeholder="🔍 Rechercher une pizza, ingrédient..." oninput="applyMenuFilters()" style="padding: 0.65rem 1rem; font-size: 0.9rem;">
+    <div style="display: flex; align-items: center; gap: 0.75rem; flex: 1; max-width: 320px; position: relative;">
+        <input type="search" id="menu-search-input" class="search-input" placeholder="Rechercher pizza, boisson..." oninput="applyMenuFilters()" style="padding-left: 2.4rem;">
+        <svg class="icon" style="position: absolute; left: 0.85rem; color: var(--text-muted); pointer-events: none;" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
     </div>
 </div>
 
 {% set sections = [
-    {'cat': 'Top Offre', 'id': 'section-offres', 'icon': '🔥', 'title': 'Top Offres & Formules', 'subtitle': 'Nos meilleures offres du moment à prix irrésistibles', 'accent': 'var(--accent-color)'},
-    {'cat': 'Pizza', 'id': 'section-pizzas', 'icon': '🍕', 'title': 'Nos Pizzas Artisanales', 'subtitle': 'Préparées à la commande avec notre sauce signature', 'accent': 'var(--primary-color)'},
-    {'cat': 'Dessert', 'id': 'section-desserts', 'icon': '🍰', 'title': 'Douceurs & Desserts', 'subtitle': 'La touche sucrée parfaite pour conclure votre repas', 'accent': '#ec4899'},
-    {'cat': 'Boisson', 'id': 'section-boissons', 'icon': '🥤', 'title': 'Boissons Fraîches', 'subtitle': 'Sodas glacés, jus pressés minute et cafés', 'accent': '#3b82f6'}
+    {'cat': 'Top Offre', 'id': 'section-offres', 'title': 'Formules & Top Offres', 'subtitle': 'Nos formules économiques et duos gourmands à prix préférentiel', 'tag': 'OFFRE'},
+    {'cat': 'Pizza', 'id': 'section-pizzas', 'title': 'Pizzas Artisanales', 'subtitle': 'Façonnées à la main, garnies à la minute et dorées au four', 'tag': 'PIZZA'},
+    {'cat': 'Dessert', 'id': 'section-desserts', 'title': 'Desserts Maison', 'subtitle': 'Douceurs authentiques pour sublimer votre dégustation', 'tag': 'DESSERT'},
+    {'cat': 'Boisson', 'id': 'section-boissons', 'title': 'Boissons Fraîches', 'subtitle': 'Sodas glacés, jus pressés naturels et expresso', 'tag': 'BOISSON'}
 ] %}
 
 <div class="menu-sections">
@@ -48,12 +61,10 @@
     <section class="menu-category-section" data-section-cat="{{ sec.cat }}" id="{{ sec.id }}" style="margin-bottom: 3.5rem;">
         <div style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.75rem;">
             <div>
-                <h2 style="margin: 0; font-size: 1.65rem; display: flex; align-items: center; gap: 0.6rem;">
-                    <span>{{ sec.icon }}</span>
-                    <span>{{ sec.title }}</span>
-                </h2>
-                <p style="margin: 0.25rem 0 0; color: var(--text-muted); font-size: 0.9rem;">{{ sec.subtitle }}</p>
+                <h2 style="margin: 0; font-size: 1.6rem; letter-spacing: 0.5px;">{{ sec.title }}</h2>
+                <p style="margin: 0.25rem 0 0; color: var(--text-muted); font-size: 0.88rem;">{{ sec.subtitle }}</p>
             </div>
+            <span class="tag-badge">{{ sec.tag }}</span>
         </div>
 
         <div class="dashboard-grid">
@@ -62,28 +73,29 @@
                      data-category="{{ pizza.category }}"
                      data-name="{{ pizza.name|lower }}"
                      data-desc="{{ (pizza.description or '')|lower }}"
-                     {% if pizza.category == 'Top Offre' %}style="border-color: rgba(255, 165, 2, 0.45);"{% endif %}>
+                     {% if pizza.category == 'Top Offre' %}style="border-color: rgba(245, 158, 11, 0.35);"{% endif %}>
                 
                 {% if pizza.category == 'Top Offre' %}
-                <div style="position: absolute; top: 0.85rem; right: 0.85rem; background: linear-gradient(135deg, #ffa502, #ff7f50); color: #0f172a; padding: 0.28rem 0.75rem; border-radius: 999px; font-weight: 900; font-size: 0.72rem; z-index: 10; box-shadow: 0 4px 12px rgba(0,0,0,0.4);">
-                    🔥 TOP DEAL
+                <div style="position: absolute; top: 0.85rem; right: 0.85rem; z-index: 10;">
+                    <span class="tag-badge tag-badge-deal">SPECIAL OFFER</span>
                 </div>
                 {% endif %}
 
                 <div class="pizza-img-wrapper">
                     {% if pizza.photo_url %}
                     <img src="{{ url_for('static', filename='img/' + pizza.photo_url) }}" alt="{{ pizza.name }}" class="pizza-img" loading="lazy">
+                    <div class="pizza-img-overlay"></div>
                     {% else %}
                     <div class="pizza-placeholder">
-                        <span>{{ sec.icon }}</span>
-                        <small style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.4rem;">{{ pizza.category }}</small>
+                        <svg class="icon icon-lg" viewBox="0 0 24 24"><polygon points="12 2 2 22 22 22 12 2"></polygon><circle cx="12" cy="14" r="2"></circle></svg>
+                        <small style="font-size: 0.75rem; color: var(--text-subtle); margin-top: 0.5rem; text-transform: uppercase;">{{ pizza.category }}</small>
                     </div>
                     {% endif %}
                 </div>
 
                 <div class="pizza-card-body">
                     <h3>{{ pizza.name }}</h3>
-                    <p>{{ pizza.description or 'Préparation artisanale fraîche.' }}</p>
+                    <p>{{ pizza.description or 'Préparation artisanale fraîche aux ingrédients sélectionnés.' }}</p>
                     <div class="pizza-card-footer">
                         <div class="pizza-price">
                             {{ "%.0f"|format(pizza.base_price) if pizza.base_price == (pizza.base_price|int) else "%.2f"|format(pizza.base_price) }} <small>DH</small>
@@ -93,8 +105,9 @@
                                 data-name="{{ pizza.name }}"
                                 data-price="{{ pizza.base_price }}"
                                 onclick="handleAddToCart(this)"
-                                style="padding: 0.65rem 1.1rem; font-size: 0.8rem;">
-                            + Ajouter
+                                style="padding: 0.65rem 1.15rem; font-size: 0.8rem;">
+                            <svg class="icon icon-sm" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                            <span>Ajouter</span>
                         </button>
                     </div>
                 </div>
@@ -105,10 +118,12 @@
     {% endfor %}
 
     <div id="no-menu-results" class="card" style="display: none; text-align: center; padding: 3rem;">
-        <div style="font-size: 3rem; margin-bottom: 0.75rem;">🔍</div>
+        <div style="color: var(--text-subtle); margin-bottom: 0.75rem;">
+            <svg class="icon icon-lg" style="width: 3rem; height: 3rem;" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        </div>
         <h3 style="margin-bottom: 0.5rem;">Aucun article trouvé</h3>
-        <p style="color: var(--text-muted); margin-bottom: 1.25rem;">Essayez un autre mot-clé ou affichez toutes les catégories.</p>
-        <button type="button" class="btn-secondary" onclick="resetMenuFilters()">Afficher tout le menu</button>
+        <p style="color: var(--text-muted); margin-bottom: 1.25rem;">Modifiez votre recherche ou sélectionnez une autre catégorie.</p>
+        <button type="button" class="btn-secondary" onclick="resetMenuFilters()">Voir tout le menu</button>
     </div>
 </div>
 
@@ -117,19 +132,21 @@
     <div id="cart" onclick="event.stopPropagation()">
         <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; border-bottom: 1px solid var(--border-subtle);">
             <div style="display: flex; align-items: center; gap: 0.6rem;">
-                <span style="font-size: 1.5rem;">🛒</span>
-                <h2 style="margin: 0; font-size: 1.35rem;">Votre Panier</h2>
+                <svg class="icon" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+                <h2 style="margin: 0; font-size: 1.3rem; letter-spacing: 0.5px;">Votre Panier</h2>
             </div>
             <div style="display: flex; align-items: center; gap: 0.5rem;">
-                <button type="button" onclick="clearCart()" class="btn-secondary" style="padding: 0.4rem 0.75rem; font-size: 0.72rem;">Vider</button>
-                <button type="button" class="close-cart" onclick="toggleCart()">✕</button>
+                <button type="button" onclick="clearCart()" class="btn-secondary" style="padding: 0.35rem 0.75rem; font-size: 0.72rem;">Vider</button>
+                <button type="button" class="close-cart" onclick="toggleCart()" aria-label="Fermer">
+                    <svg class="icon icon-sm" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
             </div>
         </div>
 
         <!-- Free Delivery Progress Banner -->
-        <div id="free-delivery-banner" style="margin-top: 1rem; padding: 0.75rem 1rem; border-radius: 12px; background: rgba(255, 255, 255, 0.04); border: 1px solid var(--border-subtle); font-size: 0.82rem;">
-            <div id="free-delivery-msg" style="margin-bottom: 0.4rem; font-weight: 600;"></div>
-            <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 999px; overflow: hidden;">
+        <div id="free-delivery-banner" style="margin-top: 1rem; padding: 0.85rem 1rem; border-radius: 12px; background: rgba(255, 255, 255, 0.04); border: 1px solid var(--border-subtle); font-size: 0.82rem;">
+            <div id="free-delivery-msg" style="margin-bottom: 0.5rem; font-weight: 600;"></div>
+            <div style="width: 100%; height: 5px; background: rgba(255,255,255,0.08); border-radius: 999px; overflow: hidden;">
                 <div id="free-delivery-bar" style="height: 100%; width: 0%; background: var(--success); transition: width 0.3s ease;"></div>
             </div>
         </div>
@@ -137,11 +154,11 @@
         <ul id="cart-items" style="list-style: none; padding: 0; margin: 1rem 0; flex: 1; overflow-y: auto;"></ul>
 
         <div style="border-top: 1px solid var(--border-subtle); padding-top: 1.15rem;">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.95rem;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.92rem;">
                 <span>Sous-total</span>
                 <span><strong id="cart-subtotal" style="color: #fff;">0.00</strong> DH</span>
             </div>
-            <div id="delivery-fee-text" style="display: flex; justify-content: space-between; margin-bottom: 0.75rem; font-size: 0.95rem;">
+            <div id="delivery-fee-text" style="display: flex; justify-content: space-between; margin-bottom: 0.75rem; font-size: 0.92rem;">
                 <span>Livraison</span>
                 <span><span id="delivery-fee">10.00</span> DH</span>
             </div>
@@ -151,8 +168,9 @@
             </div>
 
             <a href="{{ url_for('checkout') }}" id="checkout-link" style="text-decoration: none; display: block; margin-top: 1.25rem;">
-                <button type="button" id="checkout-cta-btn" style="width: 100%; padding: 1.05rem; font-size: 0.98rem;">
-                    VALIDER MA COMMANDE →
+                <button type="button" id="checkout-cta-btn" style="width: 100%; padding: 1.05rem; font-size: 0.95rem;">
+                    <span>Passer la Commande</span>
+                    <svg class="icon icon-sm" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
                 </button>
             </a>
         </div>
@@ -249,7 +267,7 @@ function addToCart(id, name, price) {
     saveCart();
     updateCartUI();
     if (typeof showToast === 'function') {
-        showToast(`${name} ajouté au panier !`, '🛒');
+        showToast(`${name} ajouté au panier`);
     }
 }
 
@@ -267,9 +285,11 @@ function updateCartUI() {
     if (cart.length === 0) {
         list.innerHTML = `
             <li style="text-align: center; padding: 3rem 1rem; color: var(--text-muted);">
-                <div style="font-size: 2.8rem; margin-bottom: 0.5rem;">🍕</div>
+                <div style="color: var(--text-subtle); margin-bottom: 0.5rem;">
+                    <svg class="icon icon-lg" style="width: 2.5rem; height: 2.5rem;" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+                </div>
                 <p style="margin: 0; font-weight: 600; color: #cbd5e1;">Votre panier est vide</p>
-                <small>Ajoutez de délicieuses pizzas pour commencer !</small>
+                <small style="color: var(--text-subtle);">Sélectionnez vos pizzas pour commencer</small>
             </li>
         `;
     }
@@ -280,7 +300,7 @@ function updateCartUI() {
         li.style.justifyContent = 'space-between';
         li.style.alignItems = 'center';
         li.style.padding = '0.85rem 0.5rem';
-        li.style.borderBottom = '1px solid rgba(255,255,255,0.06)';
+        li.style.borderBottom = '1px solid rgba(255,255,255,0.05)';
 
         const itemPrice = item.price * item.quantity;
         subtotal += itemPrice;
@@ -292,11 +312,13 @@ function updateCartUI() {
             </div>
             <div style="display: flex; align-items: center; gap: 0.65rem;">
                 <div style="display: flex; align-items: center; background: rgba(255,255,255,0.06); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 0.15rem;">
-                    <button type="button" onclick="changeQty(${index}, -1)" style="padding: 0.2rem 0.55rem; background: none; border: none; box-shadow: none; font-size: 1rem;">−</button>
-                    <span style="font-weight: 800; min-width: 24px; text-align: center; color: white; font-size: 0.9rem;">${item.quantity}</span>
-                    <button type="button" onclick="changeQty(${index}, 1)" style="padding: 0.2rem 0.55rem; background: none; border: none; box-shadow: none; font-size: 1rem;">+</button>
+                    <button type="button" onclick="changeQty(${index}, -1)" style="padding: 0.2rem 0.55rem; background: none; border: none; box-shadow: none; font-size: 1rem; color: #fff;">−</button>
+                    <span style="font-weight: 800; min-width: 24px; text-align: center; color: white; font-size: 0.88rem;">${item.quantity}</span>
+                    <button type="button" onclick="changeQty(${index}, 1)" style="padding: 0.2rem 0.55rem; background: none; border: none; box-shadow: none; font-size: 1rem; color: #fff;">+</button>
                 </div>
-                <button type="button" onclick="removeFromCart(${index})" style="background: none; border: none; color: #ef4444; padding: 0.25rem; box-shadow: none; font-size: 1rem;" title="Retirer">✕</button>
+                <button type="button" onclick="removeFromCart(${index})" style="background: none; border: none; color: #ef4444; padding: 0.25rem; box-shadow: none;" title="Supprimer">
+                    <svg class="icon icon-sm" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
             </div>
         `;
         list.appendChild(li);
@@ -315,12 +337,12 @@ function updateCartUI() {
     if (bar && msg) {
         bar.style.width = `${progressPct}%`;
         if (subtotal === 0) {
-            msg.innerHTML = '🚚 Livraison gratuite dès <strong>60 DH</strong> d\'achat';
+            msg.innerHTML = 'Livraison gratuite dès <strong>60 DH</strong> d\'achats';
         } else if (subtotal < 60) {
             const remaining = (60 - subtotal).toFixed(2);
-            msg.innerHTML = `Plus que <strong style="color: var(--accent-color);">${remaining} DH</strong> pour la livraison <strong>GRATUITE</strong> !`;
+            msg.innerHTML = `Plus que <strong style="color: var(--accent-color);">${remaining} DH</strong> pour la livraison <strong>GRATUITE</strong>`;
         } else {
-            msg.innerHTML = '🎉 <span style="color: var(--success);">Félicitations ! Livraison <strong>GRATUITE</strong> débloquée !</span>';
+            msg.innerHTML = '<span style="color: var(--success); font-weight: 700;">Livraison GRATUITE débloquée !</span>';
         }
     }
 

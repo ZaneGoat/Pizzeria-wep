@@ -1,5 +1,5 @@
 /**
- * Chef Amin Pizzeria — Global Frontend Utilities
+ * Pizza Time — Global Frontend Utilities
  * Handles navigation, cart badge sync, toast notifications, and Web Audio kitchen alerts.
  */
 
@@ -10,7 +10,7 @@ function toggleMobileNav() {
     }
 }
 
-function showToast(message, icon = '🍕') {
+function showToast(message) {
     let container = document.getElementById('toast-container');
     if (!container) {
         container = document.createElement('div');
@@ -20,15 +20,20 @@ function showToast(message, icon = '🍕') {
 
     const toast = document.createElement('div');
     toast.className = 'toast-notification';
-    toast.innerHTML = `<span>${icon}</span><span>${message}</span>`;
+    toast.innerHTML = `
+        <svg class="icon icon-sm" style="color: var(--success);" viewBox="0 0 24 24">
+            <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+        <span>${message}</span>
+    `;
     container.appendChild(toast);
 
     setTimeout(() => {
         toast.style.opacity = '0';
-        toast.style.transform = 'translateX(30px)';
+        toast.style.transform = 'translateX(35px)';
         toast.style.transition = 'all 0.25s ease';
         setTimeout(() => toast.remove(), 260);
-    }, 2600);
+    }, 2400);
 }
 
 function syncGlobalCartBadge() {

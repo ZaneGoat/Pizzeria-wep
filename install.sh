@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# 🍕 Chef Amin Pizzeria — Automated Installation & Setup Script
+# Pizza Time — Automated Installation & Setup Script
 # Repository: https://github.com/ZaneGoat/Pizzeria-wep.git
 # ==============================================================================
 
@@ -60,7 +60,7 @@ done
 
 echo -e "${CYAN}${BOLD}"
 echo "=================================================================="
-echo "   🍕 CHEF AMIN PIZZERIA — INSTALLATION & CONFIGURATION (v2.0)    "
+echo "          PIZZA TIME — INSTALLATION & CONFIGURATION (v2.0)        "
 echo "=================================================================="
 echo -e "${NC}"
 
@@ -71,7 +71,7 @@ if ! command -v python3 &>/dev/null; then
     exit 1
 fi
 PY_VER=$(python3 -c 'import sys; print(".".join(map(str, sys.version_info[:3])))')
-echo -e "      ${GREEN}✓ Found Python ${PY_VER}${NC}"
+echo -e "      ${GREEN}[OK] Found Python ${PY_VER}${NC}"
 
 # 2. Create Virtual Environment
 echo -e "${BLUE}[2/5]${NC} Setting up Python virtual environment (venv)..."
@@ -81,9 +81,9 @@ if [[ ! -d "venv" ]]; then
         sudo apt-get update && sudo apt-get install -y python3-venv
         python3 -m venv venv
     fi
-    echo -e "      ${GREEN}✓ Virtual environment created at ./venv${NC}"
+    echo -e "      ${GREEN}[OK] Virtual environment created at ./venv${NC}"
 else
-    echo -e "      ${GREEN}✓ Existing virtual environment found at ./venv${NC}"
+    echo -e "      ${GREEN}[OK] Existing virtual environment found at ./venv${NC}"
 fi
 
 # Activate venv
@@ -94,12 +94,12 @@ source venv/bin/activate
 echo -e "${BLUE}[3/5]${NC} Installing Python dependencies from requirements.txt..."
 python -m pip install --upgrade pip --quiet
 python -m pip install -r requirements.txt --quiet
-echo -e "      ${GREEN}✓ Dependencies installed successfully${NC}"
+echo -e "      ${GREEN}[OK] Dependencies installed successfully${NC}"
 
 # 4. Initialize Database & Default Accounts
 echo -e "${BLUE}[4/5]${NC} Initializing SQLite database and default accounts..."
 flask --app app init-db
-echo -e "      ${GREEN}✓ Database initialized (admin/admin123 & staff/staff123)${NC}"
+echo -e "      ${GREEN}[OK] Database initialized (admin/admin123 & staff/staff123)${NC}"
 
 # 5. Seed Menu & Sample Orders
 echo -e "${BLUE}[5/5]${NC} Seeding menu items..."
@@ -109,20 +109,20 @@ if [[ "$SEED_SAMPLES" == true ]]; then
     ORDER_COUNT=$(python -c "from app import app; from models import Commande;
 with app.app_context(): print(Commande.query.count())")
     if [[ "$ORDER_COUNT" -eq 0 ]]; then
-        echo -e "      Seeding sample Moroccan clients & orders..."
+        echo -e "      Seeding sample clients & orders..."
         python seed_samples.py
     else
-        echo -e "      ${GREEN}✓ Database already has ${ORDER_COUNT} order(s) (skipping duplicate sample seed)${NC}"
+        echo -e "      ${GREEN}[OK] Database already has ${ORDER_COUNT} order(s) (skipping duplicate sample seed)${NC}"
     fi
 fi
 
 echo ""
 echo -e "${GREEN}${BOLD}==================================================================${NC}"
-echo -e "${GREEN}${BOLD}  ✓ INSTALLATION COMPLETE!${NC}"
+echo -e "${GREEN}${BOLD}  INSTALLATION COMPLETE${NC}"
 echo -e "${GREEN}${BOLD}==================================================================${NC}"
-echo -e "  🌐 ${BOLD}Storefront URL:${NC}    http://127.0.0.1:${PORT}/"
-echo -e "  📊 ${BOLD}Admin Dashboard:${NC}   http://127.0.0.1:${PORT}/login  (${CYAN}admin${NC} / ${CYAN}admin123${NC})"
-echo -e "  👨‍🍳 ${BOLD}Kitchen KDS:${NC}       http://127.0.0.1:${PORT}/login  (${CYAN}staff${NC} / ${CYAN}staff123${NC})"
+echo -e "  Storefront URL:    http://127.0.0.1:${PORT}/"
+echo -e "  Admin Dashboard:   http://127.0.0.1:${PORT}/login  (${CYAN}admin${NC} / ${CYAN}admin123${NC})"
+echo -e "  Kitchen KDS:       http://127.0.0.1:${PORT}/login  (${CYAN}staff${NC} / ${CYAN}staff123${NC})"
 echo ""
 echo -e "  ${BOLD}To start the server manually:${NC}"
 echo -e "    source venv/bin/activate && flask --app app run --port ${PORT}"
@@ -131,6 +131,6 @@ echo -e "    ./install.sh --run"
 echo -e "${GREEN}${BOLD}==================================================================${NC}"
 
 if [[ "$RUN_SERVER" == true ]]; then
-    echo -e "\n${YELLOW}🚀 Starting Chef Amin Pizzeria on http://127.0.0.1:${PORT} ...${NC}"
+    echo -e "\n${YELLOW}Starting Pizza Time on http://127.0.0.1:${PORT} ...${NC}"
     exec flask --app app --debug run --host=0.0.0.0 --port="$PORT"
 fi
