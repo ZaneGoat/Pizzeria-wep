@@ -1,8 +1,27 @@
-# Pizza Time — Web Ordering, Kitchen KDS & Admin Platform (v2.0)
+<div align="center">
+
+```text
+  ____  ___ _____ _____    _      _____ ___ __  __ _____ 
+ |  _ \|_ _|__  /__  /   / \    |_   _|_ _|  \/  | ____|
+ | |_) || |  / /   / /   / _ \     | |  | || |\/| |  _|  
+ |  __/ | | / /_  / /_  / ___ \    | |  | || |  | | |___ 
+ |_|   |___/____|/____|/_/   \_\   |_| |___|_|  |_|_____|
+           EST. 2026 // WEB ORDERING & KITCHEN KDS
+```
+
+# PIZZA TIME — Web Ordering, Kitchen KDS & Admin Platform (v2.0)
 
 A full-stack Flask pizzeria e-commerce platform, real-time Kitchen Display System (KDS), and Admin Analytics & Management Suite crafted with a dark-glass culinary UI.
 
+<br/>
+
+![Pizza Time Storefront](docs/screenshots/storefront.png)
+
+<br/>
+
 ---
+
+</div>
 
 ## Key Features
 
