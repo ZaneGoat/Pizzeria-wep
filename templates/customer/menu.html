@@ -1,117 +1,224 @@
 {% extends "base.html" %}
 
-{% block title %}Notre Menu - Pizzeria{% endblock %}
+{% block title %}Notre Carte — Chef Amin Pizzeria{% endblock %}
 
 {% block content %}
-<section class="delivery-info">
-    <span> LIVRAISON GRATUITE (+60 DH)</span>
-    <span>⏱ 30 - 45 MIN</span>
+<!-- Hero Banner -->
+<section class="hero-banner">
+    <div>
+        <div class="hero-badge">🔥 Pâte Fraîche Pétrie Chaque Jour</div>
+        <h1 class="hero-title">L'Art de la Pizza <span>Artisanale</span> Livrée Chez Vous</h1>
+        <p class="hero-subtitle">
+            Ingrédients frais sélectionnés avec soin, mozzarella fondante et recettes signatures du Chef Amin. Commandez en quelques clics.
+        </p>
+        <div class="hero-features">
+            <div class="hero-feature-pill">🚚 Livraison Gratuite dès 60 DH</div>
+            <div class="hero-feature-pill">⏱️ 30 – 45 min Chrono</div>
+            <div class="hero-feature-pill">🧀 100% Mozzarella Fraîche</div>
+        </div>
+    </div>
+    <div style="position: relative;">
+        <img src="{{ url_for('static', filename='img/Menu1.png') }}" alt="Chef Amin Menu" style="width: 100%; max-height: 250px; object-fit: cover; border-radius: 20px; border: 2px solid rgba(255, 71, 87, 0.5); box-shadow: 0 15px 35px rgba(0,0,0,0.6);">
+    </div>
 </section>
 
-<h1>Notre Menu Légendaire</h1>
-<p style="text-align: center; margin-top: -3rem; margin-bottom: 4rem; font-style: italic; color: var(--accent-color); font-weight: bold; text-shadow: 1px 1px 2px black;">Les meilleures saveurs artisanales livrées chez vous</p>
-
-<div class="menu-sections">
-    <section id="top-offres">
-        <h2 style="color: var(--accent-color); font-size: 2rem; margin-bottom: 2rem;"> Top Offres</h2>
-        <div class="dashboard-grid">
-            {% for pizza in pizzas if pizza.category == 'Top Offre' and pizza.photo_url %}
-            <div class="card pizza-card" style="border: 3px solid var(--accent-color);">
-                <div style="position: absolute; top: 1rem; right: 1rem; background: var(--accent-color); color: var(--secondary-color); padding: 0.3rem 0.8rem; border-radius: 50px; font-weight: 800; font-size: 0.8rem; z-index: 10;">TOP DEALS</div>
-                <img src="{{ url_for('static', filename='img/' + pizza.photo_url) }}" alt="{{ pizza.name }}" class="pizza-img">
-                <h3>{{ pizza.name }}</h3>
-                <p>{{ pizza.description }}</p>
-                <strong>{{ pizza.base_price }} DH</strong>
-                <button onclick="addToCart({{ pizza.id }}, '{{ pizza.name }}', {{ pizza.base_price }})">Profiter maintenant</button>
-            </div>
-            {% endfor %}
-        </div>
-    </section>
-
-    <section style="margin-top: 5rem;">
-        <div class="menu-banners" style="margin-bottom: 4rem;">
-            <img src="{{ url_for('static', filename='img/Menu1.png') }}" alt="Menu Banner" style="width: 100%; border-radius: 30px; box-shadow: var(--shadow); border: 4px solid var(--primary-color);">
-        </div>
-        
-        <h2>Nos Pizzas Artisanales</h2>
-        <div class="dashboard-grid">
-            {% for pizza in pizzas if pizza.category == 'Pizza' and pizza.photo_url %}
-            <div class="card pizza-card">
-                <img src="{{ url_for('static', filename='img/' + pizza.photo_url) }}" alt="{{ pizza.name }}" class="pizza-img">
-                <h3>{{ pizza.name }}</h3>
-                <p>{{ pizza.description }}</p>
-                <strong>{{ pizza.base_price }} DH</strong>
-                <button onclick="addToCart({{ pizza.id }}, '{{ pizza.name }}', {{ pizza.base_price }})">Ajouter au panier</button>
-            </div>
-            {% endfor %}
-        </div>
-    </section>
-
-    <section>
-        <h2> Desserts</h2>
-        <div class="dashboard-grid">
-            {% for pizza in pizzas if pizza.category == 'Dessert' and pizza.photo_url %}
-            <div class="card pizza-card">
-                <img src="{{ url_for('static', filename='img/' + pizza.photo_url) }}" alt="{{ pizza.name }}" class="pizza-img">
-                <h3>{{ pizza.name }}</h3>
-                <p>{{ pizza.description }}</p>
-                <p><strong>{{ pizza.base_price }} DH</strong></p>
-                <button onclick="addToCart({{ pizza.id }}, '{{ pizza.name }}', {{ pizza.base_price }})">Ajouter au panier</button>
-            </div>
-            {% endfor %}
-        </div>
-    </section>
-
-    <section>
-        <h2>🥤 Boissons</h2>
-        <div class="dashboard-grid">
-            {% for pizza in pizzas if pizza.category == 'Boisson' and pizza.photo_url %}
-            <div class="card pizza-card">
-                <img src="{{ url_for('static', filename='img/' + pizza.photo_url) }}" alt="{{ pizza.name }}" class="pizza-img">
-                <h3>{{ pizza.name }}</h3>
-                <p>{{ pizza.description }}</p>
-                <p><strong>{{ pizza.base_price }} DH</strong></p>
-                <button onclick="addToCart({{ pizza.id }}, '{{ pizza.name }}', {{ pizza.base_price }})">Ajouter au panier</button>
-            </div>
-            {% endfor %}
-        </div>
-    </section>
+<!-- Filter & Search Toolbar -->
+<div class="menu-toolbar">
+    <div class="category-pills">
+        <button type="button" class="category-pill active" onclick="filterMenuCategory('all', this)">✨ Tout Voir</button>
+        <button type="button" class="category-pill" onclick="filterMenuCategory('Top Offre', this)">🔥 Top Offres</button>
+        <button type="button" class="category-pill" onclick="filterMenuCategory('Pizza', this)">🍕 Pizzas</button>
+        <button type="button" class="category-pill" onclick="filterMenuCategory('Dessert', this)">🍰 Desserts</button>
+        <button type="button" class="category-pill" onclick="filterMenuCategory('Boisson', this)">🥤 Boissons</button>
+    </div>
+    <div style="display: flex; align-items: center; gap: 0.75rem; flex: 1; max-width: 340px;">
+        <input type="search" id="menu-search-input" class="search-input" placeholder="🔍 Rechercher une pizza, ingrédient..." oninput="applyMenuFilters()" style="padding: 0.65rem 1rem; font-size: 0.9rem;">
+    </div>
 </div>
 
+{% set sections = [
+    {'cat': 'Top Offre', 'id': 'section-offres', 'icon': '🔥', 'title': 'Top Offres & Formules', 'subtitle': 'Nos meilleures offres du moment à prix irrésistibles', 'accent': 'var(--accent-color)'},
+    {'cat': 'Pizza', 'id': 'section-pizzas', 'icon': '🍕', 'title': 'Nos Pizzas Artisanales', 'subtitle': 'Préparées à la commande avec notre sauce signature', 'accent': 'var(--primary-color)'},
+    {'cat': 'Dessert', 'id': 'section-desserts', 'icon': '🍰', 'title': 'Douceurs & Desserts', 'subtitle': 'La touche sucrée parfaite pour conclure votre repas', 'accent': '#ec4899'},
+    {'cat': 'Boisson', 'id': 'section-boissons', 'icon': '🥤', 'title': 'Boissons Fraîches', 'subtitle': 'Sodas glacés, jus pressés minute et cafés', 'accent': '#3b82f6'}
+] %}
+
+<div class="menu-sections">
+    {% for sec in sections %}
+    <section class="menu-category-section" data-section-cat="{{ sec.cat }}" id="{{ sec.id }}" style="margin-bottom: 3.5rem;">
+        <div style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.75rem;">
+            <div>
+                <h2 style="margin: 0; font-size: 1.65rem; display: flex; align-items: center; gap: 0.6rem;">
+                    <span>{{ sec.icon }}</span>
+                    <span>{{ sec.title }}</span>
+                </h2>
+                <p style="margin: 0.25rem 0 0; color: var(--text-muted); font-size: 0.9rem;">{{ sec.subtitle }}</p>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            {% for pizza in pizzas if pizza.category == sec.cat %}
+            <article class="card pizza-card menu-item-card"
+                     data-category="{{ pizza.category }}"
+                     data-name="{{ pizza.name|lower }}"
+                     data-desc="{{ (pizza.description or '')|lower }}"
+                     {% if pizza.category == 'Top Offre' %}style="border-color: rgba(255, 165, 2, 0.45);"{% endif %}>
+                
+                {% if pizza.category == 'Top Offre' %}
+                <div style="position: absolute; top: 0.85rem; right: 0.85rem; background: linear-gradient(135deg, #ffa502, #ff7f50); color: #0f172a; padding: 0.28rem 0.75rem; border-radius: 999px; font-weight: 900; font-size: 0.72rem; z-index: 10; box-shadow: 0 4px 12px rgba(0,0,0,0.4);">
+                    🔥 TOP DEAL
+                </div>
+                {% endif %}
+
+                <div class="pizza-img-wrapper">
+                    {% if pizza.photo_url %}
+                    <img src="{{ url_for('static', filename='img/' + pizza.photo_url) }}" alt="{{ pizza.name }}" class="pizza-img" loading="lazy">
+                    {% else %}
+                    <div class="pizza-placeholder">
+                        <span>{{ sec.icon }}</span>
+                        <small style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.4rem;">{{ pizza.category }}</small>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="pizza-card-body">
+                    <h3>{{ pizza.name }}</h3>
+                    <p>{{ pizza.description or 'Préparation artisanale fraîche.' }}</p>
+                    <div class="pizza-card-footer">
+                        <div class="pizza-price">
+                            {{ "%.0f"|format(pizza.base_price) if pizza.base_price == (pizza.base_price|int) else "%.2f"|format(pizza.base_price) }} <small>DH</small>
+                        </div>
+                        <button type="button"
+                                data-id="{{ pizza.id }}"
+                                data-name="{{ pizza.name }}"
+                                data-price="{{ pizza.base_price }}"
+                                onclick="handleAddToCart(this)"
+                                style="padding: 0.65rem 1.1rem; font-size: 0.8rem;">
+                            + Ajouter
+                        </button>
+                    </div>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+    </section>
+    {% endfor %}
+
+    <div id="no-menu-results" class="card" style="display: none; text-align: center; padding: 3rem;">
+        <div style="font-size: 3rem; margin-bottom: 0.75rem;">🔍</div>
+        <h3 style="margin-bottom: 0.5rem;">Aucun article trouvé</h3>
+        <p style="color: var(--text-muted); margin-bottom: 1.25rem;">Essayez un autre mot-clé ou affichez toutes les catégories.</p>
+        <button type="button" class="btn-secondary" onclick="resetMenuFilters()">Afficher tout le menu</button>
+    </div>
+</div>
+
+<!-- Slide-Over Cart Drawer -->
 <div id="cart-overlay" onclick="closeCartOutside(event)">
-    <div id="cart" class="card" onclick="event.stopPropagation()">
-        <button class="close-cart" onclick="toggleCart()">✕</button>
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-            <h2 style="margin: 0;">Votre Panier</h2>
-            <button onclick="clearCart()" style="background: #444; padding: 0.3rem 0.6rem; font-size: 0.8rem; box-shadow: none;">Vider</button>
+    <div id="cart" onclick="event.stopPropagation()">
+        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; border-bottom: 1px solid var(--border-subtle);">
+            <div style="display: flex; align-items: center; gap: 0.6rem;">
+                <span style="font-size: 1.5rem;">🛒</span>
+                <h2 style="margin: 0; font-size: 1.35rem;">Votre Panier</h2>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <button type="button" onclick="clearCart()" class="btn-secondary" style="padding: 0.4rem 0.75rem; font-size: 0.72rem;">Vider</button>
+                <button type="button" class="close-cart" onclick="toggleCart()">✕</button>
+            </div>
         </div>
-        <ul id="cart-items" style="list-style: none; padding: 0; max-height: 40vh; overflow-y: auto;"></ul>
-        <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 1.5rem 0;">
-        <div style="font-size: 1.1rem;">
-            <p style="display: flex; justify-content: space-between;"><span>Sous-total:</span> <span id="cart-subtotal">0</span> DH</p>
-            <p id="delivery-fee-text" style="display: flex; justify-content: space-between;">Frais de livraison: <span id="delivery-fee">10</span> DH</p>
-            <p style="display: flex; justify-content: space-between; font-size: 1.4rem; color: var(--primary-color); font-weight: 800; margin-top: 1rem;">
-                <span>TOTAL:</span> <span id="cart-total">0</span> DH
-            </p>
+
+        <!-- Free Delivery Progress Banner -->
+        <div id="free-delivery-banner" style="margin-top: 1rem; padding: 0.75rem 1rem; border-radius: 12px; background: rgba(255, 255, 255, 0.04); border: 1px solid var(--border-subtle); font-size: 0.82rem;">
+            <div id="free-delivery-msg" style="margin-bottom: 0.4rem; font-weight: 600;"></div>
+            <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 999px; overflow: hidden;">
+                <div id="free-delivery-bar" style="height: 100%; width: 0%; background: var(--success); transition: width 0.3s ease;"></div>
+            </div>
         </div>
-        <a href="{{ url_for('checkout') }}" style="text-decoration: none;">
-            <button style="width: 100%; margin-top: 1.5rem; padding: 1.2rem; font-size: 1.1rem;">COMMANDER MAINTENANT</button>
-        </a>
+
+        <ul id="cart-items" style="list-style: none; padding: 0; margin: 1rem 0; flex: 1; overflow-y: auto;"></ul>
+
+        <div style="border-top: 1px solid var(--border-subtle); padding-top: 1.15rem;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.95rem;">
+                <span>Sous-total</span>
+                <span><strong id="cart-subtotal" style="color: #fff;">0.00</strong> DH</span>
+            </div>
+            <div id="delivery-fee-text" style="display: flex; justify-content: space-between; margin-bottom: 0.75rem; font-size: 0.95rem;">
+                <span>Livraison</span>
+                <span><span id="delivery-fee">10.00</span> DH</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: baseline; font-size: 1.35rem; font-weight: 900; color: #fff; padding-top: 0.65rem; border-top: 1px dashed var(--border-subtle);">
+                <span>TOTAL</span>
+                <span style="color: var(--accent-color);"><span id="cart-total">0.00</span> DH</span>
+            </div>
+
+            <a href="{{ url_for('checkout') }}" id="checkout-link" style="text-decoration: none; display: block; margin-top: 1.25rem;">
+                <button type="button" id="checkout-cta-btn" style="width: 100%; padding: 1.05rem; font-size: 0.98rem;">
+                    VALIDER MA COMMANDE →
+                </button>
+            </a>
+        </div>
     </div>
 </div>
 {% endblock %}
 
 {% block scripts %}
 <script>
-let cart = JSON.parse(localStorage.getItem('pizzeria_cart') || '[]');
+let cart = [];
+try {
+    cart = JSON.parse(localStorage.getItem('pizzeria_cart') || '[]');
+    if (!Array.isArray(cart)) cart = [];
+} catch (e) {
+    cart = [];
+}
+
+let activeCategory = 'all';
+
+function filterMenuCategory(category, btnEl) {
+    activeCategory = category;
+    document.querySelectorAll('.category-pill').forEach(b => b.classList.remove('active'));
+    if (btnEl) btnEl.classList.add('active');
+    applyMenuFilters();
+}
+
+function applyMenuFilters() {
+    const query = (document.getElementById('menu-search-input').value || '').trim().toLowerCase();
+    const sections = document.querySelectorAll('.menu-category-section');
+    let totalVisible = 0;
+
+    sections.forEach(sec => {
+        const secCat = sec.getAttribute('data-section-cat');
+        const cards = sec.querySelectorAll('.menu-item-card');
+        let visibleInSec = 0;
+
+        cards.forEach(card => {
+            const name = card.getAttribute('data-name') || '';
+            const desc = card.getAttribute('data-desc') || '';
+            const catMatch = (activeCategory === 'all' || secCat === activeCategory);
+            const searchMatch = (!query || name.includes(query) || desc.includes(query));
+
+            if (catMatch && searchMatch) {
+                card.style.display = 'flex';
+                visibleInSec++;
+                totalVisible++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+
+        sec.style.display = visibleInSec > 0 ? 'block' : 'none';
+    });
+
+    document.getElementById('no-menu-results').style.display = totalVisible === 0 ? 'block' : 'none';
+}
+
+function resetMenuFilters() {
+    document.getElementById('menu-search-input').value = '';
+    const firstPill = document.querySelector('.category-pill');
+    filterMenuCategory('all', firstPill);
+}
 
 function toggleCart() {
     const overlay = document.getElementById('cart-overlay');
-    if (overlay.style.display === 'flex') {
-        overlay.style.display = 'none';
-    } else {
-        overlay.style.display = 'flex';
-    }
+    overlay.style.display = (overlay.style.display === 'flex') ? 'none' : 'flex';
 }
 
 function closeCartOutside(e) {
@@ -120,19 +227,16 @@ function closeCartOutside(e) {
 
 function saveCart() {
     localStorage.setItem('pizzeria_cart', JSON.stringify(cart));
+    if (typeof syncGlobalCartBadge === 'function') {
+        syncGlobalCartBadge();
+    }
 }
 
-function updateNavBadge() {
-    const totalQty = cart.reduce((acc, item) => acc + item.quantity, 0);
-    const floatingBtn = document.getElementById('floating-cart');
-    const badge = document.getElementById('cart-badge-count');
-    
-    if (totalQty > 0) {
-        badge.textContent = totalQty;
-        floatingBtn.style.display = 'flex';
-    } else {
-        floatingBtn.style.display = 'none';
-    }
+function handleAddToCart(btn) {
+    const id = parseInt(btn.getAttribute('data-id'), 10);
+    const name = btn.getAttribute('data-name');
+    const price = parseFloat(btn.getAttribute('data-price'));
+    addToCart(id, name, price);
 }
 
 function addToCart(id, name, price) {
@@ -140,19 +244,19 @@ function addToCart(id, name, price) {
     if (existingItem) {
         existingItem.quantity += 1;
     } else {
-        cart.push({id, name, price, quantity: 1});
+        cart.push({ id, name, price, quantity: 1 });
     }
     saveCart();
     updateCartUI();
-    // Show cart automatically on add
-    document.getElementById('cart-overlay').style.display = 'flex';
+    if (typeof showToast === 'function') {
+        showToast(`${name} ajouté au panier !`, '🛒');
+    }
 }
 
 function clearCart() {
     cart = [];
     saveCart();
     updateCartUI();
-    toggleCart();
 }
 
 function updateCartUI() {
@@ -160,65 +264,93 @@ function updateCartUI() {
     list.innerHTML = '';
     let subtotal = 0;
 
+    if (cart.length === 0) {
+        list.innerHTML = `
+            <li style="text-align: center; padding: 3rem 1rem; color: var(--text-muted);">
+                <div style="font-size: 2.8rem; margin-bottom: 0.5rem;">🍕</div>
+                <p style="margin: 0; font-weight: 600; color: #cbd5e1;">Votre panier est vide</p>
+                <small>Ajoutez de délicieuses pizzas pour commencer !</small>
+            </li>
+        `;
+    }
+
     cart.forEach((item, index) => {
         const li = document.createElement('li');
         li.style.display = 'flex';
         li.style.justifyContent = 'space-between';
         li.style.alignItems = 'center';
-        li.style.marginBottom = '1rem';
-        li.style.padding = '0.5rem';
-        li.style.borderBottom = '1px solid rgba(255,255,255,0.05)';
+        li.style.padding = '0.85rem 0.5rem';
+        li.style.borderBottom = '1px solid rgba(255,255,255,0.06)';
 
         const itemPrice = item.price * item.quantity;
+        subtotal += itemPrice;
+
         li.innerHTML = `
-            <div style="color: white;">
-                <strong style="font-size: 1rem;">${item.name}</strong><br>
-                <small style="color: #ccc;">${item.price} DH</small>
+            <div style="flex: 1; padding-right: 0.75rem;">
+                <div style="font-weight: 700; color: #fff; font-size: 0.95rem;">${item.name}</div>
+                <div style="color: var(--accent-color); font-size: 0.82rem; font-weight: 700;">${item.price.toFixed(2)} DH / unité</div>
             </div>
-            <div style="display: flex; align-items: center; gap: 0.8rem;">
-                <div style="display: flex; align-items: center; background: #222; border-radius: 8px; padding: 0.2rem;">
-                    <button onclick="changeQty(${index}, -1)" style="padding: 0.2rem 0.5rem; background: none; box-shadow: none; font-size: 1.2rem;">-</button>
-                    <span style="font-weight: bold; min-width: 20px; text-align: center; color: white;">${item.quantity}</span>
-                    <button onclick="changeQty(${index}, 1)" style="padding: 0.2rem 0.5rem; background: none; box-shadow: none; font-size: 1.2rem;">+</button>
+            <div style="display: flex; align-items: center; gap: 0.65rem;">
+                <div style="display: flex; align-items: center; background: rgba(255,255,255,0.06); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 0.15rem;">
+                    <button type="button" onclick="changeQty(${index}, -1)" style="padding: 0.2rem 0.55rem; background: none; border: none; box-shadow: none; font-size: 1rem;">−</button>
+                    <span style="font-weight: 800; min-width: 24px; text-align: center; color: white; font-size: 0.9rem;">${item.quantity}</span>
+                    <button type="button" onclick="changeQty(${index}, 1)" style="padding: 0.2rem 0.55rem; background: none; border: none; box-shadow: none; font-size: 1rem;">+</button>
                 </div>
-                <button onclick="removeFromCart(${index})" style="background: none; color: var(--primary-color); padding: 0; box-shadow: none; font-size: 1.2rem;">✕</button>
+                <button type="button" onclick="removeFromCart(${index})" style="background: none; border: none; color: #ef4444; padding: 0.25rem; box-shadow: none; font-size: 1rem;" title="Retirer">✕</button>
             </div>
         `;
         list.appendChild(li);
-        subtotal += itemPrice;
     });
 
     const deliveryFee = (subtotal === 0 || subtotal >= 60) ? 0 : 10;
     const total = subtotal + deliveryFee;
 
-    const deliveryFeeSpan = document.getElementById('delivery-fee');
-    const deliveryFeeText = document.getElementById('delivery-fee-text');
-
     document.getElementById('cart-subtotal').textContent = subtotal.toFixed(2);
     document.getElementById('cart-total').textContent = total.toFixed(2);
 
-    const checkoutBtn = document.querySelector('#cart a button');
+    // Free delivery progress bar
+    const progressPct = Math.min(100, (subtotal / 60) * 100);
+    const bar = document.getElementById('free-delivery-bar');
+    const msg = document.getElementById('free-delivery-msg');
+    if (bar && msg) {
+        bar.style.width = `${progressPct}%`;
+        if (subtotal === 0) {
+            msg.innerHTML = '🚚 Livraison gratuite dès <strong>60 DH</strong> d\'achat';
+        } else if (subtotal < 60) {
+            const remaining = (60 - subtotal).toFixed(2);
+            msg.innerHTML = `Plus que <strong style="color: var(--accent-color);">${remaining} DH</strong> pour la livraison <strong>GRATUITE</strong> !`;
+        } else {
+            msg.innerHTML = '🎉 <span style="color: var(--success);">Félicitations ! Livraison <strong>GRATUITE</strong> débloquée !</span>';
+        }
+    }
+
+    const deliveryFeeText = document.getElementById('delivery-fee-text');
+    const checkoutBtn = document.getElementById('checkout-cta-btn');
+    const checkoutLink = document.getElementById('checkout-link');
+
     if (subtotal === 0) {
         checkoutBtn.disabled = true;
-        checkoutBtn.style.opacity = '0.5';
-        checkoutBtn.style.cursor = 'not-allowed';
+        checkoutBtn.style.opacity = '0.45';
+        checkoutBtn.style.pointerEvents = 'none';
+        checkoutLink.style.pointerEvents = 'none';
         deliveryFeeText.style.display = 'none';
     } else {
         checkoutBtn.disabled = false;
         checkoutBtn.style.opacity = '1';
-        checkoutBtn.style.cursor = 'pointer';
+        checkoutBtn.style.pointerEvents = 'auto';
+        checkoutLink.style.pointerEvents = 'auto';
         deliveryFeeText.style.display = 'flex';
     }
 
     if (subtotal >= 60) {
-        deliveryFeeText.style.color = 'var(--success)';
-        deliveryFeeText.innerHTML = 'LIVRAISON: <strong>GRATUITE</strong> <span id="delivery-fee" style="display:none">0</span>';
+        deliveryFeeText.innerHTML = '<span>Livraison</span> <strong style="color: var(--success);">GRATUITE (0 DH)</strong>';
     } else {
-        deliveryFeeText.style.color = 'white';
-        deliveryFeeText.innerHTML = `LIVRAISON: <span id="delivery-fee">${deliveryFee.toFixed(2)}</span> DH`;
+        deliveryFeeText.innerHTML = `<span>Frais de livraison</span> <span><strong>${deliveryFee.toFixed(2)}</strong> DH</span>`;
     }
 
-    updateNavBadge();
+    if (typeof syncGlobalCartBadge === 'function') {
+        syncGlobalCartBadge();
+    }
 }
 
 function changeQty(index, delta) {
@@ -236,8 +368,6 @@ function removeFromCart(index) {
     updateCartUI();
 }
 
-// Initial UI sync
 updateCartUI();
 </script>
 {% endblock %}
-

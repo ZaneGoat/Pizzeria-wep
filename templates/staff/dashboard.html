@@ -1,74 +1,175 @@
 {% extends "base.html" %}
 
-{% block title %}Tableau de bord Staff - Pizzeria{% endblock %}
+{% block title %}Kitchen Control Center — Staff KDS{% endblock %}
 
 {% block content %}
-<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-    <h1 style="text-align: left; margin: 0;">📟 Kitchen Control Center</h1>
-    <div style="display: flex; gap: 1rem;">
-        <button onclick="filterOrders('all')" class="filter-btn active">Tout</button>
-        <button onclick="filterOrders('New')" class="filter-btn">À Confirmer</button>
-        <button onclick="filterOrders('Confirmed')" class="filter-btn">Confirmées</button>
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.75rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+        <h1 style="text-align: left; margin: 0; font-size: 2.1rem;">📟 Kitchen Control Center (KDS)</h1>
+        <p style="margin: 0.25rem 0 0; color: var(--text-muted); font-size: 0.9rem;">
+            Suivi en temps réel des commandes • Mise à jour automatique active
+        </p>
+    </div>
+
+    <div style="display: flex; gap: 0.6rem; flex-wrap: wrap; align-items: center;">
+        <button type="button" onclick="playKitchenChime()" class="btn-secondary" style="padding: 0.55rem 0.95rem; font-size: 0.78rem;" title="Tester l'alerte sonore">
+            🔔 Alerte Sonore
+        </button>
+        <button type="button" data-filter="all" onclick="filterOrders('all', this)" class="filter-btn active">Tout</button>
+        <button type="button" data-filter="New" onclick="filterOrders('New', this)" class="filter-btn">📞 À Confirmer</button>
+        <button type="button" data-filter="Confirmed" onclick="filterOrders('Confirmed', this)" class="filter-btn">👨‍🍳 Confirmées</button>
+        <button type="button" data-filter="Preparing" onclick="filterOrders('Preparing', this)" class="filter-btn">🔥 Au Four</button>
     </div>
 </div>
 
+{% set new_orders = orders|selectattr('status', 'equalto', 'New')|list %}
+{% set confirmed_orders = orders|selectattr('status', 'equalto', 'Confirmed')|list %}
+{% set preparing_orders = orders|selectattr('status', 'equalto', 'Preparing')|list %}
+
 <div class="order-board">
-    <!-- Colonne: À Confirmer (Appel requis) -->
-    <div class="column" id="unconfirmed-orders" style="border-top: 5px solid #ff9f43;">
-        <h2 style="background: #ff9f43;">📞 À CONFIRMER (APPEL)</h2>
+    <!-- Column 1: À Confirmer (Appel requis) -->
+    <div class="column" id="unconfirmed-orders" style="border-top: 4px solid #f59e0b;">
+        <h2 style="background: rgba(245, 158, 11, 0.16); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.35);">
+            <span>📞 À CONFIRMER (APPEL)</span>
+            <span class="cart-badge" style="background: #f59e0b; color: #0f172a;">{{ new_orders|length }}</span>
+        </h2>
         <div class="orders-list">
-            {% for order in orders if order.status == 'New' %}
-            <div class="order-card new" data-status="New" style="border-left-color: #ff9f43;">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-                    <span style="font-weight: 900; font-size: 1.2rem;">#{{ order.id }}</span>
-                    <span style="background: var(--secondary-color); color: white; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.7rem;">{{ order.created_at.strftime('%H:%M') }}</span>
+            {% for order in new_orders %}
+            <div class="order-card" data-status="New" style="border-left-color: #f59e0b;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.65rem;">
+                    <span style="font-weight: 900; font-size: 1.2rem; color: #fff;">#{{ order.id }}</span>
+                    <span style="background: rgba(255,255,255,0.08); color: #cbd5e1; padding: 0.2rem 0.55rem; border-radius: 6px; font-size: 0.75rem; font-weight: 700;">
+                        🕒 {{ order.created_at.strftime('%d/%m %H:%M') }}
+                    </span>
                 </div>
-                <p style="margin: 0.2rem 0;">👤 <strong>{{ order.client.full_name }}</strong></p>
-                <div id="phone-container-{{ order.id }}" style="margin: 0.5rem 0;">
-                    <button onclick="showPhone({{ order.id }}, '{{ order.client.phone }}')" style="padding: 0.3rem 0.6rem; font-size: 0.7rem; background: #444;">Afficher Numéro</button>
+
+                <div style="margin-bottom: 0.6rem;">
+                    <div style="font-weight: 700; color: #fff;">👤 {{ order.client.full_name }}</div>
+                    <div style="margin-top: 0.25rem;">
+                        <a href="tel:{{ order.client.phone }}" style="color: var(--accent-color); font-weight: 800; text-decoration: none; font-size: 0.92rem;">
+                            📞 {{ order.client.phone }}
+                        </a>
+                    </div>
                 </div>
-                <p style="margin: 0.2rem 0;">🚚 {{ 'LIVRAISON' if order.order_type == 'Delivery' else 'À EMPORTER' }}</p>
-                <div style="margin-top: 1rem; padding-top: 0.5rem; border-top: 1px solid rgba(255,255,255,0.1);">
-                    <button onclick="moveOrder({{ order.id }}, 'Confirmed')" style="width: 100%; padding: 0.8rem; font-size: 0.8rem; background: var(--success);">✅ CONFIRMER APPEL</button>
+
+                <div style="font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.75rem; padding: 0.45rem 0.65rem; background: rgba(255,255,255,0.04); border-radius: 8px;">
+                    {% if order.order_type == 'Delivery' %}
+                        🚚 <strong>LIVRAISON</strong> — {{ order.delivery_info.address if order.delivery_info else order.client.address }}
+                        {% if order.delivery_info and order.delivery_info.neighborhood %}
+                            <span style="color: var(--accent-color);">({{ order.delivery_info.neighborhood }})</span>
+                        {% endif %}
+                    {% else %}
+                        🥡 <strong>À EMPORTER</strong> (Retrait sur place)
+                    {% endif %}
                 </div>
+
+                <!-- Order Items List -->
+                <div style="background: rgba(11, 15, 25, 0.55); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 0.65rem 0.8rem; margin-bottom: 0.85rem;">
+                    <div style="font-size: 0.7rem; text-transform: uppercase; color: var(--text-muted); font-weight: 800; margin-bottom: 0.35rem;">Articles commandés :</div>
+                    {% for item in order.items %}
+                    <div style="display: flex; justify-content: space-between; font-size: 0.88rem; padding: 0.15rem 0;">
+                        <span><strong style="color: var(--accent-color);">{{ item.quantity }}×</strong> {{ item.pizza.name if item.pizza else 'Article #' ~ item.pizza_id }}</span>
+                    </div>
+                    {% else %}
+                    <div style="font-size: 0.8rem; color: var(--text-muted);">Aucun détail d'article</div>
+                    {% endfor %}
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem; font-size: 0.9rem;">
+                    <span style="color: var(--text-muted);">{{ '💵 Cash' if (order.payment and order.payment.method == 'Cash') else '💳 Carte' }}</span>
+                    <strong style="color: var(--primary-color); font-size: 1.05rem;">{{ "%.2f"|format(order.total_price) }} DH</strong>
+                </div>
+
+                <div style="display: flex; gap: 0.5rem;">
+                    <button type="button" onclick="moveOrder({{ order.id }}, 'Confirmed')" class="btn-success" style="flex: 1; padding: 0.7rem; font-size: 0.78rem;">
+                        ✅ CONFIRMER
+                    </button>
+                    <button type="button" onclick="moveOrder({{ order.id }}, 'Cancelled')" class="btn-secondary" style="padding: 0.7rem 0.85rem; font-size: 0.78rem; color: #fca5a5;" title="Annuler">
+                        ✕
+                    </button>
+                </div>
+            </div>
+            {% else %}
+            <div style="text-align: center; padding: 3rem 1rem; color: var(--text-muted);">
+                <div style="font-size: 2.2rem; margin-bottom: 0.4rem;">✨</div>
+                <p style="margin: 0; font-size: 0.9rem;">Aucun appel en attente</p>
             </div>
             {% endfor %}
         </div>
     </div>
 
-    <!-- Colonne: Confirmées / À Préparer -->
-    <div class="column" id="confirmed-orders" style="border-top: 5px solid var(--primary-color);">
-        <h2 style="background: var(--primary-color);">👨‍🍳 CONFIRMÉES / À PRÉPARER</h2>
+    <!-- Column 2: Confirmées / À Préparer -->
+    <div class="column" id="confirmed-orders" style="border-top: 4px solid var(--primary-color);">
+        <h2 style="background: rgba(255, 71, 87, 0.16); color: #ff6b81; border: 1px solid rgba(255, 71, 87, 0.35);">
+            <span>👨‍🍳 CONFIRMÉES / EN ATTENTE</span>
+            <span class="cart-badge" style="background: var(--primary-color); color: #fff;">{{ confirmed_orders|length }}</span>
+        </h2>
         <div class="orders-list">
-            {% for order in orders if order.status == 'Confirmed' %}
-            <div class="order-card confirmed" data-status="Confirmed" style="border-left-color: var(--primary-color);">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-                    <span style="font-weight: 900; font-size: 1.2rem;">#{{ order.id }}</span>
-                    <span style="color: var(--success); font-weight: bold; font-size: 0.7rem;">CONFIRMÉ ✓</span>
+            {% for order in confirmed_orders %}
+            <div class="order-card" data-status="Confirmed" style="border-left-color: var(--primary-color);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.65rem;">
+                    <span style="font-weight: 900; font-size: 1.2rem; color: #fff;">#{{ order.id }}</span>
+                    <span class="status-badge status-Confirmed">CONFIRMÉE ✓</span>
                 </div>
-                <p>👤 <strong>{{ order.client.full_name }}</strong></p>
-                <div style="margin-top: 1rem; padding-top: 0.5rem; border-top: 1px solid rgba(255,255,255,0.1);">
-                    <button onclick="moveOrder({{ order.id }}, 'Preparing')" style="width: 100%; padding: 0.8rem; font-size: 0.8rem;">LANCER EN CUISINE</button>
+
+                <p style="margin: 0 0 0.6rem; font-weight: 700;">👤 {{ order.client.full_name }} • <small style="color: var(--text-muted);">{{ 'Livraison' if order.order_type == 'Delivery' else 'À Emporter' }}</small></p>
+
+                <!-- Order Items List -->
+                <div style="background: rgba(11, 15, 25, 0.55); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 0.65rem 0.8rem; margin-bottom: 0.85rem;">
+                    <div style="font-size: 0.7rem; text-transform: uppercase; color: var(--text-muted); font-weight: 800; margin-bottom: 0.35rem;">À préparer :</div>
+                    {% for item in order.items %}
+                    <div style="display: flex; justify-content: space-between; font-size: 0.92rem; font-weight: 700; padding: 0.18rem 0;">
+                        <span><strong style="color: var(--accent-color);">{{ item.quantity }}×</strong> {{ item.pizza.name if item.pizza else 'Article #' ~ item.pizza_id }}</span>
+                    </div>
+                    {% endfor %}
                 </div>
+
+                <button type="button" onclick="moveOrder({{ order.id }}, 'Preparing')" style="width: 100%; padding: 0.75rem; font-size: 0.8rem;">
+                    🔥 LANCER AU FOUR
+                </button>
+            </div>
+            {% else %}
+            <div style="text-align: center; padding: 3rem 1rem; color: var(--text-muted);">
+                <div style="font-size: 2.2rem; margin-bottom: 0.4rem;">👨‍🍳</div>
+                <p style="margin: 0; font-size: 0.9rem;">Aucune commande en file d'attente</p>
             </div>
             {% endfor %}
         </div>
     </div>
 
-    <!-- Colonne: En préparation -->
-    <div class="column" id="preparing-orders" style="border-top: 5px solid var(--accent-color);">
-        <h2 style="background: var(--accent-color); color: var(--secondary-color);">🔥 EN CUISINE</h2>
+    <!-- Column 3: En Préparation (Au Four) -->
+    <div class="column" id="preparing-orders" style="border-top: 4px solid var(--accent-color);">
+        <h2 style="background: rgba(255, 165, 2, 0.16); color: var(--accent-color); border: 1px solid rgba(255, 165, 2, 0.35);">
+            <span>🔥 EN CUISINE (AU FOUR)</span>
+            <span class="cart-badge" style="background: var(--accent-color); color: #0f172a;">{{ preparing_orders|length }}</span>
+        </h2>
         <div class="orders-list">
-            {% for order in orders if order.status == 'Preparing' %}
-            <div class="order-card preparing" data-status="Preparing" style="border-left-color: var(--accent-color);">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-                    <span style="font-weight: 900; font-size: 1.2rem;">#{{ order.id }}</span>
-                    <span style="color: var(--accent-color); font-weight: bold; animation: pulse 1.5s infinite;">CUISSON...</span>
+            {% for order in preparing_orders %}
+            <div class="order-card" data-status="Preparing" style="border-left-color: var(--accent-color);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.65rem;">
+                    <span style="font-weight: 900; font-size: 1.2rem; color: #fff;">#{{ order.id }}</span>
+                    <span style="color: var(--accent-color); font-weight: 800; font-size: 0.75rem; animation: pulse 1.5s infinite;">🔥 CUISSON...</span>
                 </div>
-                <p>👤 <strong>{{ order.client.full_name }}</strong></p>
-                <div style="margin-top: 1rem; padding-top: 0.5rem; border-top: 1px solid rgba(255,255,255,0.1);">
-                    <button onclick="moveOrder({{ order.id }}, 'Done')" style="width: 100%; padding: 0.8rem; font-size: 0.8rem; background: var(--accent-color); color: var(--secondary-color);">TERMINER</button>
+
+                <p style="margin: 0 0 0.6rem; font-weight: 700;">👤 {{ order.client.full_name }} • <small style="color: var(--text-muted);">{{ '🚚 Livraison' if order.order_type == 'Delivery' else '🥡 À Emporter' }}</small></p>
+
+                <!-- Order Items List -->
+                <div style="background: rgba(11, 15, 25, 0.55); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 0.65rem 0.8rem; margin-bottom: 0.85rem;">
+                    {% for item in order.items %}
+                    <div style="display: flex; justify-content: space-between; font-size: 0.92rem; font-weight: 700; padding: 0.18rem 0;">
+                        <span><strong style="color: var(--accent-color);">{{ item.quantity }}×</strong> {{ item.pizza.name if item.pizza else 'Article #' ~ item.pizza_id }}</span>
+                    </div>
+                    {% endfor %}
                 </div>
+
+                <button type="button" onclick="moveOrder({{ order.id }}, 'Done')" class="btn-warning" style="width: 100%; padding: 0.75rem; font-size: 0.8rem;">
+                    ✅ PRÊTE / ENVOYER EN LIVRAISON
+                </button>
+            </div>
+            {% else %}
+            <div style="text-align: center; padding: 3rem 1rem; color: var(--text-muted);">
+                <div style="font-size: 2.2rem; margin-bottom: 0.4rem;">🍕</div>
+                <p style="margin: 0; font-size: 0.9rem;">Aucune commande au four actuellement</p>
             </div>
             {% endfor %}
         </div>
@@ -77,43 +178,35 @@
 
 <style>
 .filter-btn {
-    background: #333;
-    border: none;
-    padding: 0.5rem 1.5rem;
-    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--border-subtle);
+    padding: 0.55rem 1.1rem;
+    border-radius: 10px;
     cursor: pointer;
-    font-weight: bold;
+    font-weight: 700;
+    font-size: 0.8rem;
+    box-shadow: none;
 }
 .filter-btn.active {
-    background: var(--primary-color);
+    background: linear-gradient(135deg, var(--primary-color), #e11d48);
+    border-color: transparent;
     color: white;
 }
 @keyframes pulse {
-    0% { opacity: 1; }
-    50% { opacity: 0.5; }
-    100% { opacity: 1; }
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.45; }
 }
 </style>
-
-<style>
-@keyframes pulse {
-    0% { transform: scale(1); opacity: 1; }
-    50% { transform: scale(1.2); opacity: 0.5; }
-    100% { transform: scale(1); opacity: 1; }
-}
-</style>
-
-<audio id="alert-sound" src="{{ url_for('static', filename='alert.mp3') }}" preload="auto"></audio>
 {% endblock %}
 
 {% block scripts %}
 <script>
+let knownLatestOrderId = {{ orders[0].id if orders else 0 }};
+
 function moveOrder(orderId, newStatus) {
     fetch(`/staff/order/${orderId}/update_status`, {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus })
     }).then(response => {
         if (response.ok) {
@@ -122,41 +215,42 @@ function moveOrder(orderId, newStatus) {
     });
 }
 
-function showPhone(orderId, phone) {
-    const container = document.getElementById(`phone-container-${orderId}`);
-    container.innerHTML = `<a href="tel:${phone}" style="color: var(--accent-color); font-weight: bold; font-size: 1.1rem; text-decoration: none;">📞 ${phone}</a>`;
-}
+function filterOrders(status, btnEl) {
+    document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+    if (btnEl) btnEl.classList.add('active');
 
-function filterOrders(status) {
-    // Update buttons
-    document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.classList.remove('active');
-        if (btn.textContent.toLowerCase().includes(status.toLowerCase()) || (status === 'all' && btn.textContent === 'Tout')) {
-            btn.classList.add('active');
-        }
-    });
-
-    const columns = ['unconfirmed-orders', 'confirmed-orders', 'preparing-orders'];
     const statusMap = {
         'New': 'unconfirmed-orders',
         'Confirmed': 'confirmed-orders',
         'Preparing': 'preparing-orders'
     };
 
+    const board = document.querySelector('.order-board');
     if (status === 'all') {
-        columns.forEach(id => document.getElementById(id).style.display = 'block');
+        board.style.gridTemplateColumns = '';
+        Object.values(statusMap).forEach(id => {
+            document.getElementById(id).style.display = 'block';
+        });
     } else {
-        columns.forEach(id => {
-            const col = document.getElementById(id);
-            if (id === statusMap[status]) {
-                col.style.display = 'block';
-            } else {
-                col.style.display = 'none';
-            }
+        board.style.gridTemplateColumns = '1fr';
+        Object.entries(statusMap).forEach(([st, id]) => {
+            document.getElementById(id).style.display = (st === status) ? 'block' : 'none';
         });
     }
 }
 
-// Logic for polling new orders and playing sound could go here
+// Poll for new incoming orders every 10 seconds
+setInterval(() => {
+    fetch('/api/staff/summary')
+        .then(r => r.json())
+        .then(data => {
+            if (data && data.latest_order_id > knownLatestOrderId) {
+                knownLatestOrderId = data.latest_order_id;
+                if (typeof playKitchenChime === 'function') playKitchenChime();
+                setTimeout(() => window.location.reload(), 900);
+            }
+        })
+        .catch(() => {});
+}, 10000);
 </script>
 {% endblock %}

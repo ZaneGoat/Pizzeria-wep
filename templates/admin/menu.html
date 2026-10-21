@@ -1,114 +1,121 @@
 {% extends "base.html" %}
 
-{% block title %}Gestion du Menu - Admin{% endblock %}
+{% block title %}Gestion de la Carte — Admin{% endblock %}
 
 {% block content %}
 <div class="admin-menu-container">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-        <h1 style="margin: 0;">📋 Gestion du Menu</h1>
-        <button onclick="document.getElementById('add-form').scrollIntoView({behavior:'smooth'})" style="background: var(--primary-color);">+ AJOUTER ARTICLE</button>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <h1 style="margin: 0; text-align: left; font-size: 2.1rem;">📋 Gestion de la Carte ({{ pizzas|length }} articles)</h1>
+            <p style="margin: 0.25rem 0 0; color: var(--text-muted); font-size: 0.9rem;">Ajoutez, modifiez ou masquez les articles disponibles en boutique</p>
+        </div>
+        <button type="button" onclick="document.getElementById('add-form').scrollIntoView({behavior:'smooth'})">
+            + AJOUTER UN ARTICLE
+        </button>
     </div>
 
-    <!-- Inventory Sections by Category -->
     {% set cat_map = [
         {'id': 'offres', 'name': 'Top Offre', 'icon': '🔥', 'title': 'OFFRES SPÉCIALES'},
-        {'id': 'pizzas', 'name': 'Pizza', 'icon': '🍕', 'title': 'NOS PIZZAS'},
-        {'id': 'desserts', 'name': 'Dessert', 'icon': '🍰', 'title': 'DESSERTS'},
-        {'id': 'boissons', 'name': 'Boisson', 'icon': '🥤', 'title': 'BOISSONS'}
+        {'id': 'pizzas', 'name': 'Pizza', 'icon': '🍕', 'title': 'NOS PIZZAS ARTISANALES'},
+        {'id': 'desserts', 'name': 'Dessert', 'icon': '🍰', 'title': 'DESSERTS MAISON'},
+        {'id': 'boissons', 'name': 'Boisson', 'icon': '🥤', 'title': 'BOISSONS & JUS'}
     ] %}
 
     {% for section in cat_map %}
-    <div id="{{ section.id }}" class="card" style="margin-bottom: 3rem; padding: 0; overflow: hidden; border-left: 4px solid var(--accent-color);">
-        <div style="background: rgba(255,255,255,0.03); padding: 1rem 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; gap: 0.8rem;">
-            <span style="font-size: 1.5rem;">{{ section.icon }}</span>
-            <h3 style="margin: 0; font-size: 1.1rem; letter-spacing: 1px;">{{ section.title }}</h3>
+    <div id="{{ section.id }}" class="card" style="margin-bottom: 2.25rem; padding: 0; overflow: hidden; border-left: 4px solid var(--accent-color);">
+        <div style="background: rgba(255,255,255,0.03); padding: 1rem 1.4rem; border-bottom: 1px solid var(--border-subtle); display: flex; align-items: center; justify-content: space-between;">
+            <div style="display: flex; align-items: center; gap: 0.7rem;">
+                <span style="font-size: 1.4rem;">{{ section.icon }}</span>
+                <h3 style="margin: 0; font-size: 1.05rem; letter-spacing: 0.8px;">{{ section.title }}</h3>
+            </div>
+            <span class="status-badge status-New">{{ pizzas|selectattr('category', 'equalto', section.name)|list|length }} article(s)</span>
         </div>
-        
-        <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.85rem;">
-            <thead>
-                <tr style="color: #888; border-bottom: 1px solid rgba(255,255,255,0.05);">
-                    <th style="padding: 1rem; width: 80px;">IMAGE</th>
-                    <th style="padding: 1rem;">NOM</th>
-                    <th style="padding: 1rem;">PRIX</th>
-                    <th style="padding: 1rem;">STATUT</th>
-                    <th style="padding: 1rem; text-align: center;">ACTIONS</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for item in pizzas if item.category == section.name %}
-                <tr style="border-bottom: 1px solid rgba(255,255,255,0.02); transition: 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.02)'" onmouseout="this.style.background='transparent'">
-                    <td style="padding: 0.8rem;">
-                        {% if item.photo_url %}
-                        <img src="{{ url_for('static', filename='img/' + item.photo_url) }}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;">
-                        {% else %}
-                        <div style="width: 50px; height: 50px; background: #333; border-radius: 8px; display: flex; align-items: center; justify-content: center;">🖼️</div>
-                        {% endif %}
-                    </td>
-                    <td style="padding: 0.8rem; font-weight: bold;">{{ item.name }}</td>
-                    <td style="padding: 0.8rem; color: var(--primary-color); font-weight: bold;">{{ item.base_price }} DH</td>
-                    <td style="padding: 0.8rem;">
-                        <span style="font-size: 0.7rem; padding: 0.2rem 0.5rem; border-radius: 4px; background: {% if item.is_available %}var(--success){% else %}#444{% endif %};">
-                            {% if item.is_available %}ACTIF{% else %}MASQUÉ{% endif %}
-                        </span>
-                    </td>
-                    <td style="padding: 0.8rem; text-align: center;">
-                        <div style="display: flex; gap: 0.5rem; justify-content: center;">
-                            <a href="{{ url_for('admin_edit_menu', id=item.id) }}"><button style="padding: 0.4rem 0.8rem; font-size: 0.7rem; background: #333; border: none;">MODIFIER</button></a>
-                            <a href="{{ url_for('toggle_availability', id=item.id) }}">
-                                <button style="padding: 0.4rem 0.8rem; font-size: 0.7rem; border: none; background: {% if item.is_available %}#444{% else %}var(--success){% endif %};">
-                                    {% if item.is_available %}DÉSACTIVER{% else %}ACTIVER{% endif %}
-                                </button>
-                            </a>
-                        </div>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+
+        <div style="overflow-x: auto;">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th style="width: 80px;">Photo</th>
+                        <th>Nom & Description</th>
+                        <th>Prix</th>
+                        <th>Visibilité</th>
+                        <th style="text-align: right;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in pizzas if item.category == section.name %}
+                    <tr>
+                        <td>
+                            {% if item.photo_url %}
+                            <img src="{{ url_for('static', filename='img/' + item.photo_url) }}" alt="{{ item.name }}" style="width: 54px; height: 54px; object-fit: cover; border-radius: 10px; border: 1px solid var(--border-subtle);">
+                            {% else %}
+                            <div style="width: 54px; height: 54px; background: rgba(255,255,255,0.05); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem;">{{ section.icon }}</div>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div style="font-weight: 800; color: #fff; font-size: 0.96rem;">{{ item.name }}</div>
+                            <div style="color: var(--text-muted); font-size: 0.8rem;">{{ item.description or 'Aucune description' }}</div>
+                        </td>
+                        <td style="color: var(--accent-color); font-weight: 900; white-space: nowrap;">{{ "%.2f"|format(item.base_price) }} DH</td>
+                        <td>
+                            <span class="status-badge {% if item.is_available %}status-Done{% else %}status-Cancelled{% endif %}">
+                                {% if item.is_available %}EN LIGNE{% else %}MASQUÉ{% endif %}
+                            </span>
+                        </td>
+                        <td style="text-align: right;">
+                            <div style="display: flex; gap: 0.45rem; justify-content: flex-end; align-items: center;">
+                                <a href="{{ url_for('admin_edit_menu', id=item.id) }}" class="btn btn-secondary" style="padding: 0.4rem 0.75rem; font-size: 0.72rem;">✏️ Modifier</a>
+                                <a href="{{ url_for('toggle_availability', id=item.id) }}" class="btn {% if item.is_available %}btn-secondary{% else %}btn-success{% endif %}" style="padding: 0.4rem 0.75rem; font-size: 0.72rem;">
+                                    {% if item.is_available %}Masquer{% else %}Activer{% endif %}
+                                </a>
+                                <form method="POST" action="{{ url_for('delete_pizza', id=item.id) }}" style="margin: 0;" onsubmit="return confirm('Voulez-vous vraiment supprimer cet article ?');">
+                                    <button type="submit" class="btn-secondary" style="padding: 0.4rem 0.65rem; font-size: 0.72rem; color: #fca5a5;" title="Supprimer">🗑️</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
     {% endfor %}
 
     <!-- Add Article Form -->
-    <div id="add-form" class="card" style="margin-top: 4rem; border-top: 4px solid var(--primary-color);">
-        <h3 style="margin-top: 0; color: var(--primary-color);">🚀 Ajouter un Nouvel Article</h3>
-        <form method="POST" enctype="multipart/form-data" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-top: 2rem;">
-            <div class="form-group">
-                <label>Nom de l'article</label>
-                <input type="text" name="name" required style="background: rgba(255,255,255,0.05);">
+    <div id="add-form" class="card" style="margin-top: 3rem; border-top: 4px solid var(--primary-color); padding: 2.25rem;">
+        <h3 style="margin-top: 0; color: #fff; font-size: 1.35rem;">🚀 Ajouter un Nouvel Article à la Carte</h3>
+        <form method="POST" enctype="multipart/form-data" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.25rem; margin-top: 1.5rem;">
+            <div class="form-group" style="margin: 0;">
+                <label>Nom de l'article *</label>
+                <input type="text" name="name" placeholder="Ex: Pizza Royale" required>
             </div>
-            <div class="form-group">
-                <label>Catégorie</label>
-                <select name="category" required style="background: rgba(255,255,255,0.05); color: white;">
+            <div class="form-group" style="margin: 0;">
+                <label>Catégorie *</label>
+                <select name="category" required>
                     <option value="Pizza">🍕 Pizza</option>
                     <option value="Top Offre">🔥 Top Offre</option>
                     <option value="Dessert">🍰 Dessert</option>
                     <option value="Boisson">🥤 Boisson</option>
                 </select>
             </div>
-            <div class="form-group">
-                <label>Prix (DH)</label>
-                <input type="number" step="0.01" name="price" required style="background: rgba(255,255,255,0.05);">
+            <div class="form-group" style="margin: 0;">
+                <label>Prix (DH) *</label>
+                <input type="number" step="0.01" min="1" name="price" placeholder="Ex: 75.00" required>
             </div>
-            <div class="form-group" style="grid-column: 1 / -1;">
-                <label>Description</label>
-                <textarea name="description" rows="2" style="background: rgba(255,255,255,0.05);"></textarea>
+            <div class="form-group" style="grid-column: 1 / -1; margin: 0;">
+                <label>Description / Ingrédients</label>
+                <textarea name="description" rows="2" placeholder="Sauce tomate maison, mozzarella fraîche, origan..."></textarea>
             </div>
-            <div class="form-group" style="grid-column: 1 / -1;">
-                <label>Photo</label>
-                <input type="file" name="photo" accept="image/*" style="padding: 0.5rem; background: rgba(255,255,255,0.05);">
+            <div class="form-group" style="grid-column: 1 / -1; margin: 0;">
+                <label>Photo de l'article (Optionnel)</label>
+                <input type="file" name="photo" accept="image/*">
             </div>
-            <div style="grid-column: 1 / -1;">
-                <button type="submit" style="width: 100%; padding: 1rem; font-weight: bold; font-size: 1rem;">PUBLIER SUR LE MENU</button>
+            <div style="grid-column: 1 / -1; margin-top: 0.5rem;">
+                <button type="submit" style="width: 100%; padding: 1rem; font-size: 0.95rem;">
+                    ✨ PUBLIER SUR LA CARTE
+                </button>
             </div>
         </form>
     </div>
 </div>
-
-<style>
-.form-group label { display: block; margin-bottom: 0.5rem; font-size: 0.75rem; color: #888; font-weight: bold; text-transform: uppercase; }
-.form-group input, .form-group select, .form-group textarea { 
-    width: 100%; padding: 0.8rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); color: white;
-}
-</style>
 {% endblock %}
-

@@ -1,69 +1,97 @@
 {% extends "base.html" %}
 
-{% block title %}Finaliser la commande - Pizzeria{% endblock %}
+{% block title %}Finaliser votre commande — Chef Amin Pizzeria{% endblock %}
 
 {% block content %}
-<h1 style="text-align: left;">🛒 Finaliser votre commande</h1>
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+        <h1 style="text-align: left; margin: 0; font-size: 2.2rem;">🛒 Finaliser Votre Commande</h1>
+        <p style="margin: 0.3rem 0 0; color: var(--text-muted);">Complétez vos coordonnées pour lancer la préparation au four.</p>
+    </div>
+    <a href="{{ url_for('boutique') }}" class="btn btn-secondary">← Continuer mes achats</a>
+</div>
 
-<div class="checkout-grid" style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 3rem; align-items: start;">
-    <div class="card" style="border-left: 8px solid var(--primary-color); padding: 3rem;">
-        <h3 style="color: var(--primary-color); margin-bottom: 2rem; font-size: 1.8rem;">👤 Vos Informations</h3>
+<div class="checkout-grid" style="display: grid; grid-template-columns: 1.4fr 1fr; gap: 2rem; align-items: start;">
+    <!-- Left Column: Customer Form -->
+    <div class="card" style="border-top: 4px solid var(--primary-color); padding: 2.25rem;">
+        <h3 style="color: #fff; margin-bottom: 1.5rem; font-size: 1.35rem; display: flex; align-items: center; gap: 0.6rem;">
+            <span>👤</span> Vos Coordonnées
+        </h3>
+
         <form id="checkout-form" method="POST">
             <input type="hidden" name="cart_data" id="cart-data-input">
-            
-            <div class="form-group">
-                <label for="full_name">Nom complet</label>
-                <input type="text" id="full_name" name="full_name" placeholder="Votre nom et prénom" required>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem;">
+                <div class="form-group">
+                    <label for="full_name">Nom & Prénom *</label>
+                    <input type="text" id="full_name" name="full_name" placeholder="Ex: Amine Bennani" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Téléphone (Appel de confirmation) *</label>
+                    <input type="tel" id="phone" name="phone" placeholder="06XXXXXXXX" required>
+                </div>
             </div>
-            
+
             <div class="form-group">
-                <label for="phone">Numéro de téléphone</label>
-                <input type="tel" id="phone" name="phone" placeholder="06XXXXXXXX" required>
-            </div>
-            
-            <div class="form-group">
-                <label>Type de commande</label>
+                <label for="order_type">Mode de Réception</label>
                 <select name="order_type" id="order_type" onchange="updateSummary()" required>
-                    <option value="Delivery">🚚 Livraison à domicile</option>
-                    <option value="Pickup">🥡 À emporter (Sur place)</option>
+                    <option value="Delivery">🚚 Livraison à domicile (Gratuite dès 60 DH)</option>
+                    <option value="Pickup">🥡 À emporter (Retrait au restaurant — 0 DH)</option>
                 </select>
             </div>
-            
-            <div id="delivery-fields">
+
+            <div id="delivery-fields" style="background: rgba(255,255,255,0.03); padding: 1.25rem; border-radius: 14px; border: 1px solid var(--border-subtle); margin-bottom: 1.35rem;">
                 <div class="form-group">
-                    <label for="address">Adresse de livraison exacte</label>
-                    <input type="text" id="address" name="address" placeholder="Rue, n° de porte, bâtiment...">
+                    <label for="address">Adresse exacte de livraison *</label>
+                    <input type="text" id="address" name="address" placeholder="N°, Rue, Immeuble, Appartement..." required>
                 </div>
-                <div class="form-group">
+                <div class="form-group" style="margin-bottom: 0;">
                     <label for="neighborhood">Quartier / Secteur</label>
-                    <input type="text" id="neighborhood" name="neighborhood" placeholder="Ex: Gauthier, Maarif...">
+                    <input type="text" id="neighborhood" name="neighborhood" placeholder="Ex: Maarif, Gauthier, Anfa, Bourgogne...">
                 </div>
             </div>
-            
+
             <div class="form-group">
-                <label>Mode de paiement</label>
-                <select name="payment_method" required>
-                    <option value="Cash">💵 Espèces (Cash à la livraison)</option>
-                    <option value="Card">💳 Carte Bancaire (Terminal TPE)</option>
+                <label for="payment_method">Mode de Paiement</label>
+                <select name="payment_method" id="payment_method" required>
+                    <option value="Cash">💵 Espèces (Paiement à la réception)</option>
+                    <option value="Card">💳 Carte Bancaire (Terminal TPE au livreur)</option>
                 </select>
             </div>
-            
-            <button type="submit" style="width: 100%; margin-top: 1rem; padding: 1.5rem; font-size: 1.2rem;">🚀 CONFIRMER MA COMMANDE</button>
+
+            <button type="submit" style="width: 100%; margin-top: 0.75rem; padding: 1.15rem; font-size: 1.05rem;">
+                🚀 CONFIRMER ET ENVOYER EN CUISINE
+            </button>
         </form>
     </div>
-    
-    <div class="card" style="height: fit-content; background: rgba(0,0,0,0.3); border: 2px solid var(--accent-color);">
-        <h3 style="color: var(--accent-color); margin-bottom: 2rem;">🧾 Résumé</h3>
-        <div id="checkout-summary">
-            <!-- Filled by JS -->
+
+    <!-- Right Column: Order Summary -->
+    <div class="card" style="border-top: 4px solid var(--accent-color); position: sticky; top: 5.5rem;">
+        <h3 style="color: var(--accent-color); margin-bottom: 1.25rem; font-size: 1.3rem; display: flex; align-items: center; justify-content: space-between;">
+            <span>🧾 Récapitulatif</span>
+            <span id="summary-count-badge" class="status-badge status-New">0 article(s)</span>
+        </h3>
+
+        <div id="checkout-summary" style="max-height: 340px; overflow-y: auto; padding-right: 0.25rem;">
+            <!-- Populated by JS -->
         </div>
-        <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 2rem 0;">
-        <div style="font-size: 1.2rem;">
-            <p style="display: flex; justify-content: space-between;"><span>Sous-total:</span> <span id="summary-subtotal">0</span> DH</p>
-            <p id="summary-delivery-row" style="display: flex; justify-content: space-between;"><span>Frais de livraison:</span> <span id="summary-delivery">0</span> DH</p>
-            <p style="display: flex; justify-content: space-between; font-size: 2rem; color: var(--primary-color); font-weight: 900; margin-top: 1.5rem;">
-                <span>TOTAL:</span> <span id="summary-total">0</span> DH
+
+        <hr style="border: 0; border-top: 1px solid var(--border-subtle); margin: 1.25rem 0;">
+
+        <div style="font-size: 1rem;">
+            <p style="display: flex; justify-content: space-between; margin: 0.5rem 0; color: var(--text-muted);">
+                <span>Sous-total</span>
+                <span style="color: #fff; font-weight: 700;"><span id="summary-subtotal">0.00</span> DH</span>
             </p>
+            <p id="summary-delivery-row" style="display: flex; justify-content: space-between; margin: 0.5rem 0; color: var(--text-muted);">
+                <span>Frais de livraison</span>
+                <span><span id="summary-delivery">0.00</span> DH</span>
+            </p>
+            <div style="display: flex; justify-content: space-between; align-items: baseline; font-size: 1.6rem; color: #fff; font-weight: 900; margin-top: 1rem; padding-top: 1rem; border-top: 1px dashed var(--border-subtle);">
+                <span>TOTAL À PAYER</span>
+                <span style="color: var(--primary-color);"><span id="summary-total">0.00</span> DH</span>
+            </div>
         </div>
     </div>
 </div>
@@ -72,7 +100,7 @@
 {% block scripts %}
 <script>
 const cart = JSON.parse(localStorage.getItem('pizzeria_cart') || '[]');
-if (cart.length === 0) {
+if (!Array.isArray(cart) || cart.length === 0) {
     window.location.href = '/';
 }
 
@@ -82,57 +110,63 @@ function updateSummary() {
     const summaryDiv = document.getElementById('checkout-summary');
     const orderType = document.getElementById('order_type').value;
     const deliveryFields = document.getElementById('delivery-fields');
-    
+    const addressInput = document.getElementById('address');
+
     if (orderType === 'Pickup') {
         deliveryFields.style.display = 'none';
-        document.getElementById('address').required = false;
+        addressInput.required = false;
     } else {
         deliveryFields.style.display = 'block';
-        document.getElementById('address').required = true;
+        addressInput.required = true;
     }
-    
+
     summaryDiv.innerHTML = '';
     let subtotal = 0;
+    let totalCount = 0;
+
     cart.forEach(item => {
         const itemTotal = item.price * item.quantity;
-        const p = document.createElement('p');
-        p.style.display = 'flex';
-        p.style.justifyContent = 'space-between';
-        p.style.fontSize = '1.3rem';
-        p.style.marginBottom = '1rem';
-        p.innerHTML = `<span>${item.name} (x${item.quantity})</span> <span>${itemTotal.toFixed(2)} DH</span>`;
-        summaryDiv.appendChild(p);
         subtotal += itemTotal;
+        totalCount += item.quantity;
+
+        const row = document.createElement('div');
+        row.style.display = 'flex';
+        row.style.justifyContent = 'space-between';
+        row.style.alignItems = 'center';
+        row.style.padding = '0.65rem 0';
+        row.style.borderBottom = '1px solid rgba(255,255,255,0.05)';
+        row.innerHTML = `
+            <div>
+                <strong style="color: #fff;">${item.name}</strong>
+                <span style="color: var(--accent-color); font-weight: 700; margin-left: 0.4rem;">×${item.quantity}</span>
+            </div>
+            <div style="font-weight: 700; color: #e2e8f0;">${itemTotal.toFixed(2)} DH</div>
+        `;
+        summaryDiv.appendChild(row);
     });
-    
-    let deliveryFee = (subtotal === 0 || subtotal >= 60 || orderType === 'Pickup') ? 0 : 10;
-    let total = subtotal + deliveryFee;
-    
+
+    document.getElementById('summary-count-badge').textContent = `${totalCount} article(s)`;
+
+    const deliveryFee = (subtotal === 0 || subtotal >= 60 || orderType === 'Pickup') ? 0 : 10;
+    const total = subtotal + deliveryFee;
+
     document.getElementById('summary-subtotal').textContent = subtotal.toFixed(2);
     document.getElementById('summary-total').textContent = total.toFixed(2);
-    
+
     const deliveryRow = document.getElementById('summary-delivery-row');
-    if (subtotal === 0) {
-        deliveryRow.style.display = 'none';
-    } else if (deliveryFee === 0 && orderType === 'Delivery') {
-        deliveryRow.style.display = 'flex';
-        deliveryRow.style.color = 'var(--success-color)';
-        deliveryRow.innerHTML = 'Livraison: <strong>GRATUITE</strong> <span id="summary-delivery" style="display:none">0</span>';
-    } else if (orderType === 'Pickup') {
-        deliveryRow.style.display = 'flex';
-        deliveryRow.style.color = 'inherit';
-        deliveryRow.innerHTML = 'Livraison: <strong>N/A</strong> <span id="summary-delivery" style="display:none">0</span>';
+    if (orderType === 'Pickup') {
+        deliveryRow.innerHTML = '<span>Retrait sur place</span> <strong style="color: var(--success);">0.00 DH</strong>';
+    } else if (deliveryFee === 0) {
+        deliveryRow.innerHTML = '<span>Livraison à domicile</span> <strong style="color: var(--success);">GRATUITE</strong>';
     } else {
-        deliveryRow.style.display = 'flex';
-        deliveryRow.style.color = 'inherit';
-        deliveryRow.innerHTML = `Frais de livraison: <span id="summary-delivery">${deliveryFee.toFixed(2)}</span> DH`;
+        deliveryRow.innerHTML = `<span>Livraison à domicile</span> <strong style="color: #fff;">${deliveryFee.toFixed(2)} DH</strong>`;
     }
 }
 
 updateSummary();
 
-document.getElementById('checkout-form').onsubmit = function() {
-    localStorage.removeItem('pizzeria_cart'); // Clear cart on success
-};
+document.getElementById('checkout-form').addEventListener('submit', function () {
+    localStorage.removeItem('pizzeria_cart');
+});
 </script>
 {% endblock %}

@@ -1,128 +1,155 @@
 {% extends "base.html" %}
 
-{% macro render_table(order_list, show_actions=False) %}
-<table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.8rem;">
-    <thead>
-        <tr style="background: rgba(255,255,255,0.03); color: #888;">
-            <th style="padding: 0.8rem;">ID</th>
-            <th style="padding: 0.8rem;">DATE</th>
-            <th style="padding: 0.8rem;">CLIENT</th>
-            <th style="padding: 0.8rem;">TÉLÉPHONE</th>
-            <th style="padding: 0.8rem;">TYPE</th>
-            <th style="padding: 0.8rem;">TOTAL</th>
-            <th style="padding: 0.8rem;">STATUT</th>
-            {% if show_actions %}<th class="no-print" style="padding: 0.8rem; text-align: center;">ACTIONS</th>{% endif %}
-        </tr>
-    </thead>
-    <tbody>
-        {% for order in order_list %}
-        <tr style="border-bottom: 1px solid rgba(255,255,255,0.02); transition: 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.02)'" onmouseout="this.style.background='transparent'">
-            <td style="padding: 0.8rem; font-weight: bold;">#{{ order.id }}</td>
-            <td style="padding: 0.8rem; color: #aaa;">{{ order.created_at.strftime('%d/%m %H:%M') }}</td>
-            <td style="padding: 0.8rem; font-weight: 600;">{{ order.client.full_name }}</td>
-            <td style="padding: 0.8rem;">
-                <a href="tel:{{ order.client.phone }}" style="color: var(--accent-color); text-decoration: none; font-weight: bold;">📞 {{ order.client.phone }}</a>
-            </td>
-            <td style="padding: 0.8rem;">{{ 'Livraison' if order.order_type == 'Delivery' else 'Emporter' }}</td>
-            <td style="padding: 0.8rem; color: var(--primary-color); font-weight: 800;">{{ order.total_price }} DH</td>
-            <td style="padding: 0.8rem;">
-                <span style="padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.65rem; font-weight: bold; white-space: nowrap;
-                    {% if order.status == 'New' %} background: #ff9f43; color: white;
-                    {% elif order.status == 'Confirmed' %} background: var(--success); color: white;
-                    {% elif order.status == 'Preparing' %} background: var(--accent-color); color: var(--secondary-color);
-                    {% else %} background: #444; color: white;
-                    {% endif %}">
-                    {{ order.status|upper }}
-                </span>
-            </td>
-            {% if show_actions %}
-            <td class="no-print" style="padding: 0.8rem;">
-                <div style="display: flex; gap: 0.3rem; justify-content: center;">
-                    {% if order.status == 'New' %}
-                    <button onclick="updateStatus({{ order.id }}, 'Confirmed')" style="padding: 0.3rem 0.6rem; font-size: 0.65rem; background: var(--success); border: none;">CONFIRMER</button>
-                    {% elif order.status == 'Confirmed' %}
-                    <button onclick="updateStatus({{ order.id }}, 'Preparing')" style="padding: 0.3rem 0.6rem; font-size: 0.65rem; background: var(--accent-color); color: var(--secondary-color); border: none;">CUISINER</button>
-                    {% endif %}
-                </div>
-            </td>
-            {% endif %}
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+{% macro render_table(order_list, show_actions=True) %}
+<div style="overflow-x: auto;">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Date</th>
+                <th>Client & Téléphone</th>
+                <th>Articles Commandés</th>
+                <th>Type</th>
+                <th>Total</th>
+                <th>Statut</th>
+                {% if show_actions %}<th class="no-print" style="text-align: center;">Actions</th>{% endif %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in order_list %}
+            <tr>
+                <td style="font-weight: 900; color: #fff;">#{{ order.id }}</td>
+                <td style="color: var(--text-muted); font-size: 0.82rem; white-space: nowrap;">{{ order.created_at.strftime('%d/%m/%Y %H:%M') }}</td>
+                <td>
+                    <div style="font-weight: 700; color: #fff;">{{ order.client.full_name }}</div>
+                    <a href="tel:{{ order.client.phone }}" style="color: var(--accent-color); text-decoration: none; font-size: 0.82rem; font-weight: 700;">📞 {{ order.client.phone }}</a>
+                </td>
+                <td style="max-width: 280px;">
+                    {% for item in order.items %}
+                        <span style="display: inline-block; background: rgba(255,255,255,0.06); border: 1px solid var(--border-subtle); padding: 0.15rem 0.5rem; border-radius: 6px; font-size: 0.76rem; margin: 0.1rem;">
+                            <strong style="color: var(--accent-color);">{{ item.quantity }}×</strong> {{ item.pizza.name if item.pizza else 'Article #' ~ item.pizza_id }}
+                        </span>
+                    {% else %}
+                        <span style="color: var(--text-muted); font-size: 0.8rem;">-</span>
+                    {% endfor %}
+                </td>
+                <td>
+                    <span style="font-size: 0.82rem;">{{ '🚚 Livraison' if order.order_type == 'Delivery' else '🥡 Emporter' }}</span>
+                </td>
+                <td style="color: var(--primary-color); font-weight: 900; white-space: nowrap;">{{ "%.2f"|format(order.total_price) }} DH</td>
+                <td>
+                    <span class="status-badge status-{{ order.status }}">{{ order.status }}</span>
+                </td>
+                {% if show_actions %}
+                <td class="no-print" style="text-align: center;">
+                    <div style="display: flex; gap: 0.35rem; justify-content: center; flex-wrap: wrap;">
+                        {% if order.status == 'New' %}
+                        <button type="button" onclick="updateStatus({{ order.id }}, 'Confirmed')" class="btn-success" style="padding: 0.38rem 0.65rem; font-size: 0.7rem;">Confirmer</button>
+                        {% elif order.status == 'Confirmed' %}
+                        <button type="button" onclick="updateStatus({{ order.id }}, 'Preparing')" class="btn-warning" style="padding: 0.38rem 0.65rem; font-size: 0.7rem;">Cuisiner</button>
+                        {% elif order.status == 'Preparing' %}
+                        <button type="button" onclick="updateStatus({{ order.id }}, 'Done')" class="btn-success" style="padding: 0.38rem 0.65rem; font-size: 0.7rem;">Terminer</button>
+                        {% endif %}
+                        <a href="{{ url_for('order_success', order_id=order.id) }}" class="btn btn-secondary" style="padding: 0.38rem 0.65rem; font-size: 0.7rem;" title="Voir Reçu">🧾</a>
+                    </div>
+                </td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 {% endmacro %}
 
-{% block title %}Gestion des Commandes - Admin{% endblock %}
+{% block title %}Gestion des Commandes — Admin{% endblock %}
 
 {% block content %}
 <div class="admin-orders-container">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-        <h1 style="margin: 0;">📦 Gestion des Commandes</h1>
-        <button onclick="window.print()" style="background: var(--secondary-color); border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem;">
-            🖨️ IMPRIMER TOUT
-        </button>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.75rem; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <h1 style="margin: 0; text-align: left; font-size: 2.1rem;">📦 Gestion des Commandes</h1>
+            <p style="margin: 0.25rem 0 0; color: var(--text-muted); font-size: 0.9rem;">Suivi des appels clients, préparations et historique des ventes</p>
+        </div>
+        <div class="no-print" style="display: flex; gap: 0.75rem; align-items: center;">
+            <form method="GET" action="{{ url_for('admin_orders') }}" style="display: flex; gap: 0.5rem;">
+                {% if selected_client %}
+                <input type="hidden" name="client_id" value="{{ selected_client.id }}">
+                {% endif %}
+                <input type="search" name="q" value="{{ search_query or '' }}" class="search-input" placeholder="🔍 Nom, tél ou #ID..." style="width: 220px; padding: 0.6rem 0.9rem; font-size: 0.85rem;">
+                <button type="submit" class="btn-secondary" style="padding: 0.6rem 0.9rem;">Filtrer</button>
+            </form>
+            <button type="button" onclick="window.print()" class="btn-secondary" style="padding: 0.65rem 1rem; font-size: 0.8rem;">
+                🖨️ Imprimer
+            </button>
+        </div>
     </div>
-    
-    <div class="no-print" style="display: flex; justify-content: center; gap: 1rem; margin-bottom: 3rem; background: rgba(255,255,255,0.02); padding: 1rem; border-radius: 15px;">
-        <button onclick="scrollToSection('new-section')" class="nav-btn" style="border-left: 3px solid #ff9f43;">📞 À CONFIRMER</button>
-        <button onclick="scrollToSection('confirmed-section')" class="nav-btn" style="border-left: 3px solid var(--success);">👨‍🍳 CONFIRMÉES</button>
-        <button onclick="scrollToSection('all-section')" class="nav-btn" style="border-left: 3px solid var(--primary-color);">📋 HISTORIQUE</button>
+
+    {% if selected_client %}
+    <div class="card no-print" style="margin-bottom: 1.75rem; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid var(--accent-color);">
+        <div>
+            <span>Affichage de l'historique du client : <strong style="color: var(--accent-color);">{{ selected_client.full_name }}</strong> ({{ selected_client.phone }})</span>
+        </div>
+        <a href="{{ url_for('admin_orders') }}" class="btn btn-secondary" style="padding: 0.45rem 0.9rem; font-size: 0.75rem;">✕ Voir toutes les commandes</a>
+    </div>
+    {% endif %}
+
+    <div class="no-print" style="display: flex; justify-content: center; gap: 0.75rem; margin-bottom: 2.25rem; flex-wrap: wrap;">
+        <button type="button" onclick="scrollToSection('new-section')" class="btn-secondary" style="border-left: 3px solid #f59e0b; font-size: 0.78rem;">📞 À Confirmer ({{ orders|selectattr('status', 'equalto', 'New')|list|length }})</button>
+        <button type="button" onclick="scrollToSection('confirmed-section')" class="btn-secondary" style="border-left: 3px solid var(--info); font-size: 0.78rem;">👨‍🍳 Confirmées ({{ orders|selectattr('status', 'equalto', 'Confirmed')|list|length }})</button>
+        <button type="button" onclick="scrollToSection('all-section')" class="btn-secondary" style="border-left: 3px solid var(--primary-color); font-size: 0.78rem;">📋 Historique Complet ({{ orders|length }})</button>
     </div>
 
     <!-- Section: À Confirmer -->
-    <div id="new-section" class="order-section" style="margin-bottom: 4rem;">
-        <h3 style="color: #ff9f43; font-size: 1rem; letter-spacing: 1px; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
-            <span>📞</span> COMMANDES À CONFIRMER
+    <div id="new-section" class="order-section" style="margin-bottom: 3rem;">
+        <h3 style="color: #fbbf24; font-size: 1rem; letter-spacing: 0.8px; margin-bottom: 1rem;">
+            📞 COMMANDES À CONFIRMER PAR TÉLÉPHONE
         </h3>
-        <div class="card" style="padding: 0; overflow: hidden; border-top: 3px solid #ff9f43;">
+        <div class="card" style="padding: 0; overflow: hidden; border-top: 3px solid #f59e0b;">
             {% set new_list = orders|selectattr('status', 'equalto', 'New')|list %}
             {% if new_list %}
                 {{ render_table(new_list, show_actions=True) }}
             {% else %}
-                <p style="padding: 2rem; text-align: center; color: #666; font-size: 0.9rem;">Aucune commande en attente de confirmation.</p>
+                <p style="padding: 2rem; text-align: center; color: var(--text-muted); margin: 0;">Aucune commande en attente de confirmation.</p>
             {% endif %}
         </div>
     </div>
 
     <!-- Section: Confirmées -->
-    <div id="confirmed-section" class="order-section" style="margin-bottom: 4rem;">
-        <h3 style="color: var(--success); font-size: 1rem; letter-spacing: 1px; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
-            <span>👨‍🍳</span> COMMANDES CONFIRMÉES
+    <div id="confirmed-section" class="order-section" style="margin-bottom: 3rem;">
+        <h3 style="color: #60a5fa; font-size: 1rem; letter-spacing: 0.8px; margin-bottom: 1rem;">
+            👨‍🍳 COMMANDES CONFIRMÉES & EN CUISINE
         </h3>
-        <div class="card" style="padding: 0; overflow: hidden; border-top: 3px solid var(--success);">
-            {% set confirmed_list = orders|selectattr('status', 'equalto', 'Confirmed')|list %}
-            {% if confirmed_list %}
-                {{ render_table(confirmed_list, show_actions=True) }}
+        <div class="card" style="padding: 0; overflow: hidden; border-top: 3px solid #3b82f6;">
+            {% set active_list = orders|selectattr('status', 'in', ['Confirmed', 'Preparing'])|list %}
+            {% if active_list %}
+                {{ render_table(active_list, show_actions=True) }}
             {% else %}
-                <p style="padding: 2rem; text-align: center; color: #666; font-size: 0.9rem;">Aucune commande confirmée en attente.</p>
+                <p style="padding: 2rem; text-align: center; color: var(--text-muted); margin: 0;">Aucune commande confirmée ou en préparation.</p>
             {% endif %}
         </div>
     </div>
 
     <!-- Section: Historique Complet -->
     <div id="all-section" class="order-section">
-        <h3 style="color: var(--primary-color); font-size: 1rem; letter-spacing: 1px; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
-            <span>📋</span> HISTORIQUE COMPLET
+        <h3 style="color: var(--primary-color); font-size: 1rem; letter-spacing: 0.8px; margin-bottom: 1rem;">
+            📋 HISTORIQUE COMPLET DES COMMANDES ({{ orders|length }})
         </h3>
         <div class="card" style="padding: 0; overflow: hidden; border-top: 3px solid var(--primary-color);">
-            {{ render_table(orders, show_actions=False) }}
+            {% if orders %}
+                {{ render_table(orders, show_actions=True) }}
+            {% else %}
+                <p style="padding: 2rem; text-align: center; color: var(--text-muted); margin: 0;">Aucune commande trouvée.</p>
+            {% endif %}
         </div>
     </div>
 </div>
 
 <style>
-.nav-btn { background: rgba(255,255,255,0.05); border: none; padding: 0.6rem 1.2rem; border-radius: 8px; cursor: pointer; color: white; font-size: 0.75rem; font-weight: bold; transition: 0.3s; }
-.nav-btn:hover { background: rgba(255,255,255,0.1); transform: translateY(-2px); }
-
 @media print {
     body { background: white !important; color: black !important; }
     .no-print, header, footer, .navbar { display: none !important; }
-    .card { border: 1px solid #ccc !important; box-shadow: none !important; margin-bottom: 2rem !important; }
-    table { color: black !important; width: 100% !important; }
-    th { color: black !important; border-bottom: 2px solid black !important; background: #eee !important; font-size: 0.7rem; }
-    td { border-bottom: 1px solid #eee !important; font-size: 0.7rem; }
-    h1, h3 { color: black !important; text-shadow: none !important; border-color: black !important; }
-    .order-section { page-break-inside: avoid; }
+    .card { border: 1px solid #ccc !important; box-shadow: none !important; background: white !important; color: black !important; }
+    table, th, td { color: black !important; }
 }
 </style>
 

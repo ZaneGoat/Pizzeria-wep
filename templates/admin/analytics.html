@@ -1,142 +1,177 @@
 {% extends "base.html" %}
 
-{% block title %}Dashboard Admin - Pizzeria{% endblock %}
+{% block title %}Dashboard Analytics — Administration{% endblock %}
 
 {% block content %}
 <div class="admin-dashboard">
-    <!-- Row 1: KPI Cards -->
-    <div class="dashboard-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
-        <div class="card kpi-card" style="border-left: 4px solid var(--success);">
-            <small>REVENU TOTAL</small>
-            <h3>{{ "%.2f"|format(total_revenue) }} DH</h3>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <h1 style="text-align: left; margin: 0; font-size: 2.1rem;">📊 Tableau de Bord & Performances</h1>
+            <p style="margin: 0.25rem 0 0; color: var(--text-muted); font-size: 0.9rem;">Vue d'ensemble en temps réel de l'activité Chef Amin Pizzeria</p>
         </div>
-        <div class="card kpi-card" style="border-left: 4px solid var(--primary-color);">
-            <small>COMMANDES AUJ.</small>
-            <h3 style="color: var(--primary-color);">{{ orders_today }}</h3>
-        </div>
-        <div class="card kpi-card" style="border-left: 4px solid var(--accent-color);">
-            <small>PIZZAS VENDUES</small>
-            <h3>{{ pizzas_sold }}</h3>
-        </div>
-        <div class="card kpi-card" style="border-left: 4px solid #3498db;">
-            <small>NOUVEAUX CLIENTS</small>
-            <h3>{{ new_clients }}</h3>
+        <div style="display: flex; gap: 0.75rem;">
+            <a href="{{ url_for('staff_dashboard') }}" class="btn btn-secondary">👨‍🍳 Ouvrir Cuisine KDS</a>
+            <a href="{{ url_for('admin_menu') }}" class="btn">+ Gérer le Menu</a>
         </div>
     </div>
 
-    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
-        <!-- Column 1: Sales Chart -->
-        <div class="card" style="padding: 1.5rem;">
-            <h4 style="margin-top: 0;">📈 Évolution des Ventes</h4>
-            <canvas id="salesChart" height="120"></canvas>
+    <!-- Row 1: 6 KPI Cards -->
+    <div class="dashboard-grid" style="grid-template-columns: repeat(auto-fit, minmax(185px, 1fr)); gap: 1.15rem; margin-bottom: 2rem;">
+        <div class="card kpi-card" style="border-top: 3px solid var(--success);">
+            <small>CHIFFRE D'AFFAIRES</small>
+            <h3 style="color: var(--success);">{{ "%.2f"|format(total_revenue) }} <span style="font-size: 0.9rem;">DH</span></h3>
+        </div>
+        <div class="card kpi-card" style="border-top: 3px solid var(--primary-color);">
+            <small>COMMANDES AUJ.</small>
+            <h3 style="color: var(--primary-color);">{{ orders_today }}</h3>
+        </div>
+        <div class="card kpi-card" style="border-top: 3px solid #f59e0b;">
+            <small>EN COURS (CUISINE)</small>
+            <h3 style="color: #fbbf24;">{{ active_orders }}</h3>
+        </div>
+        <div class="card kpi-card" style="border-top: 3px solid var(--accent-color);">
+            <small>PANIER MOYEN</small>
+            <h3>{{ "%.2f"|format(avg_order) }} <span style="font-size: 0.9rem;">DH</span></h3>
+        </div>
+        <div class="card kpi-card" style="border-top: 3px solid #ec4899;">
+            <small>ARTICLES VENDUS</small>
+            <h3>{{ pizzas_sold }}</h3>
+        </div>
+        <div class="card kpi-card" style="border-top: 3px solid #3b82f6;">
+            <small>CLIENTS INSCRITS</small>
+            <h3 style="color: #60a5fa;">{{ new_clients }}</h3>
+        </div>
+    </div>
+
+    <!-- Row 2: Sales Chart & Best Sellers -->
+    <div class="checkout-grid" style="display: grid; grid-template-columns: 1.85fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+        <div class="card" style="padding: 1.6rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h4 style="margin: 0; border: none; padding: 0;">📈 Évolution du Chiffre d'Affaires (7 derniers jours)</h4>
+                <span class="status-badge status-Done">{{ total_orders }} commandes totales</span>
+            </div>
+            <canvas id="salesChart" height="115"></canvas>
         </div>
 
-        <!-- Column 2: Best Sellers -->
-        <div class="card" style="padding: 1.5rem;">
-            <h4 style="margin-top: 0;">🍕 Top Ventes</h4>
-            <ul style="list-style: none; padding: 0; margin: 0;">
+        <div class="card" style="padding: 1.6rem;">
+            <h4 style="margin-top: 0;">🏆 Top 5 Meilleures Ventes</h4>
+            {% set max_qty = best_sellers[0].total_qty if best_sellers else 1 %}
+            <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.95rem;">
                 {% for item in best_sellers %}
-                <li style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
-                    <span>{{ item.name }}</span>
-                    <strong style="color: var(--accent-color);">x{{ item.total_qty }}</strong>
+                <li>
+                    <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 0.3rem;">
+                        <span style="font-weight: 700; color: #fff;">{{ loop.index }}. {{ item.name }}</span>
+                        <strong style="color: var(--accent-color);">{{ item.total_qty }} vendus</strong>
+                    </div>
+                    <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.07); border-radius: 999px; overflow: hidden;">
+                        <div style="height: 100%; width: {{ (item.total_qty / max_qty * 100)|int }}%; background: linear-gradient(90deg, var(--primary-color), var(--accent-color)); border-radius: 999px;"></div>
+                    </div>
                 </li>
+                {% else %}
+                <li style="color: var(--text-muted); text-align: center; padding: 2rem 0;">Aucune vente enregistrée</li>
                 {% endfor %}
             </ul>
         </div>
     </div>
 
-    <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 1.5rem;">
-        <!-- Bottom Left: Recent Orders Table -->
-        <div class="card" style="padding: 1rem;">
+    <!-- Row 3: Recent Orders Table & Shortcuts -->
+    <div class="checkout-grid" style="display: grid; grid-template-columns: 1.85fr 1fr; gap: 1.5rem;">
+        <div class="card" style="padding: 1.5rem;">
             <h4 style="margin-top: 0; display: flex; justify-content: space-between; align-items: center;">
-                🕒 Commandes Récentes
-                <a href="{{ url_for('admin_orders') }}" style="font-size: 0.7rem; color: var(--primary-color);">VOIR TOUT</a>
+                <span>🕒 Dernières Commandes</span>
+                <a href="{{ url_for('admin_orders') }}" style="font-size: 0.78rem; color: var(--primary-color); text-decoration: none; font-weight: 800;">VOIR TOUT →</a>
             </h4>
-            <table style="width: 100%; border-collapse: collapse; font-size: 0.8rem; text-align: left;">
-                <thead>
-                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.1); color: #888;">
-                        <th style="padding: 0.5rem;">ID</th>
-                        <th style="padding: 0.5rem;">CLIENT</th>
-                        <th style="padding: 0.5rem;">TOTAL</th>
-                        <th style="padding: 0.5rem;">STATUT</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for order in recent_orders %}
-                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.02);">
-                        <td style="padding: 0.5rem;">#{{ order.id }}</td>
-                        <td style="padding: 0.5rem;">{{ order.client.full_name }}</td>
-                        <td style="padding: 0.5rem; font-weight: bold;">{{ order.total_price }} DH</td>
-                        <td style="padding: 0.5rem;">
-                            <span style="font-size: 0.6rem; padding: 0.2rem 0.4rem; border-radius: 4px; background: 
-                                {% if order.status == 'New' %}#ff9f43{% elif order.status == 'Done' %}var(--success){% else %}#444{% endif %};">
-                                {{ order.status }}
-                            </span>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            <div style="overflow-x: auto;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Client</th>
+                            <th>Date</th>
+                            <th>Total</th>
+                            <th>Statut</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in recent_orders %}
+                        <tr>
+                            <td style="font-weight: 800;">#{{ order.id }}</td>
+                            <td>{{ order.client.full_name }}</td>
+                            <td style="color: var(--text-muted); font-size: 0.8rem;">{{ order.created_at.strftime('%d/%m %H:%M') }}</td>
+                            <td style="font-weight: 800; color: var(--accent-color);">{{ "%.2f"|format(order.total_price) }} DH</td>
+                            <td>
+                                <span class="status-badge status-{{ order.status }}">{{ order.status }}</span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
 
-        <!-- Bottom Right: Menu Category Shortcuts -->
-        <div class="card" style="padding: 1rem;">
-            <h4 style="margin-top: 0;">⚡ Raccourcis Menu</h4>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin-top: 1rem;">
-                <a href="{{ url_for('admin_menu') }}#pizzas" style="text-decoration: none;">
-                    <button style="width: 100%; padding: 1rem; font-size: 0.7rem; background: rgba(255,77,77,0.1); border-color: var(--primary-color);">🍕 PIZZAS</button>
-                </a>
-                <a href="{{ url_for('admin_menu') }}#desserts" style="text-decoration: none;">
-                    <button style="width: 100%; padding: 1rem; font-size: 0.7rem; background: rgba(255,183,3,0.1); border-color: var(--accent-color);">🍰 DESSERTS</button>
-                </a>
-                <a href="{{ url_for('admin_menu') }}#boissons" style="text-decoration: none;">
-                    <button style="width: 100%; padding: 1rem; font-size: 0.7rem; background: rgba(52,152,219,0.1); border-color: #3498db;">🥤 BOISSONS</button>
-                </a>
-                <a href="{{ url_for('admin_menu') }}#offres" style="text-decoration: none;">
-                    <button style="width: 100%; padding: 1rem; font-size: 0.7rem; background: rgba(6,214,160,0.1); border-color: var(--success);">🔥 OFFRES</button>
-                </a>
+        <div class="card" style="padding: 1.5rem;">
+            <h4 style="margin-top: 0;">⚡ Accès Rapide Catégories</h4>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem; margin-top: 1rem;">
+                <a href="{{ url_for('admin_menu') }}#pizzas" class="btn btn-secondary" style="padding: 1.15rem; font-size: 0.8rem; border-color: rgba(255, 71, 87, 0.4);">🍕 PIZZAS</a>
+                <a href="{{ url_for('admin_menu') }}#desserts" class="btn btn-secondary" style="padding: 1.15rem; font-size: 0.8rem; border-color: rgba(255, 165, 2, 0.4);">🍰 DESSERTS</a>
+                <a href="{{ url_for('admin_menu') }}#boissons" class="btn btn-secondary" style="padding: 1.15rem; font-size: 0.8rem; border-color: rgba(59, 130, 246, 0.4);">🥤 BOISSONS</a>
+                <a href="{{ url_for('admin_menu') }}#offres" class="btn btn-secondary" style="padding: 1.15rem; font-size: 0.8rem; border-color: rgba(16, 185, 129, 0.4);">🔥 OFFRES</a>
             </div>
-            <p style="font-size: 0.7rem; color: #666; margin-top: 1rem; font-style: italic;">* Cliquez pour modifier les articles de cette catégorie</p>
+            <div style="margin-top: 1.25rem; padding-top: 1.15rem; border-top: 1px solid var(--border-subtle); display: flex; flex-direction: column; gap: 0.6rem;">
+                <a href="{{ url_for('admin_clients') }}" class="btn btn-secondary" style="width: 100%; font-size: 0.8rem;">👥 Répertoire Clients ({{ new_clients }})</a>
+                <a href="{{ url_for('boutique') }}" class="btn btn-secondary" style="width: 100%; font-size: 0.8rem;">🛍️ Voir la Boutique Client</a>
+            </div>
         </div>
     </div>
 </div>
 
 <style>
-.kpi-card { padding: 1rem; text-align: center; background: rgba(255,255,255,0.02); }
-.kpi-card small { color: #888; font-weight: 800; letter-spacing: 1px; font-size: 0.65rem; display: block; margin-bottom: 0.5rem; }
-.kpi-card h3 { margin: 0; font-size: 1.5rem; }
-h4 { font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; color: #aaa; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem; }
+.kpi-card { padding: 1.25rem; text-align: left; }
+.kpi-card small { color: var(--text-muted); font-weight: 800; letter-spacing: 0.8px; font-size: 0.7rem; display: block; margin-bottom: 0.4rem; }
+.kpi-card h3 { margin: 0; font-size: 1.65rem; font-weight: 900; }
+h4 { font-size: 0.92rem; text-transform: uppercase; letter-spacing: 0.8px; color: #cbd5e1; border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.65rem; margin-bottom: 1rem; }
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    const dailyData = {
-        labels: [{% for day in daily_sales %}'{{ day.date }}',{% endfor %}],
-        revenues: [{% for day in daily_sales %}{{ day.revenue }},{% endfor %}]
-    };
+const dailyData = {
+    labels: [{% for day in daily_sales %}'{{ day.date[5:] }}',{% endfor %}],
+    revenues: [{% for day in daily_sales %}{{ day.revenue }},{% endfor %}]
+};
 
-    new Chart(document.getElementById('salesChart'), {
-        type: 'line',
-        data: {
-            labels: dailyData.labels,
-            datasets: [{
-                data: dailyData.revenues,
-                borderColor: '#06d6a0',
-                backgroundColor: 'rgba(6, 214, 160, 0.05)',
-                borderWidth: 2,
-                fill: true,
-                tension: 0.4,
-                pointRadius: 3
-            }]
+new Chart(document.getElementById('salesChart'), {
+    type: 'line',
+    data: {
+        labels: dailyData.labels,
+        datasets: [{
+            label: 'Chiffre d\'affaires (DH)',
+            data: dailyData.revenues,
+            borderColor: '#10b981',
+            backgroundColor: 'rgba(16, 185, 129, 0.14)',
+            borderWidth: 3,
+            fill: true,
+            tension: 0.35,
+            pointRadius: 4,
+            pointBackgroundColor: '#10b981'
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: { display: false }
         },
-        options: {
-            responsive: true,
-            plugins: { legend: { display: false } },
-            scales: {
-                y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#666', font: { size: 10 } } },
-                x: { grid: { display: false }, ticks: { color: '#666', font: { size: 10 } } }
+        scales: {
+            y: {
+                beginAtZero: true,
+                grid: { color: 'rgba(255,255,255,0.05)' },
+                ticks: { color: '#94a3b8', font: { size: 11 } }
+            },
+            x: {
+                grid: { display: false },
+                ticks: { color: '#94a3b8', font: { size: 11 } }
             }
         }
-    });
+    }
+});
 </script>
 {% endblock %}

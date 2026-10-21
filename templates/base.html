@@ -3,28 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Pizzeria App{% endblock %}</title>
+    <title>{% block title %}Chef Amin Pizzeria — Pizzas Artisanales{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <header>
+    <header class="no-print">
         <nav class="navbar">
-            <a href="{{ url_for('index') }}" class="logo" style="text-decoration: none;">Chef Amin Pizzeria</a>
-            <ul class="nav-links">
+            <a href="{{ url_for('boutique') if current_user.is_authenticated and current_user.role == 'admin' else url_for('index') }}" class="logo">
+                <span class="logo-icon">🍕</span>
+                <span>Chef Amin <span class="logo-accent">Pizzeria</span></span>
+            </a>
+
+            <button class="mobile-menu-toggle" onclick="toggleMobileNav()" aria-label="Menu">☰</button>
+
+            <ul class="nav-links" id="main-nav-links">
                 {% if current_user.is_authenticated and current_user.role == 'admin' %}
-                    <li><a href="{{ url_for('admin_analytics') }}" style="color: var(--text-light); text-decoration: none; font-weight: 600; font-size: 0.95rem; text-transform: uppercase; text-shadow: 1px 1px 2px rgba(0,0,0,0.8);">Dashboard</a></li>
-                    <li><a href="{{ url_for('admin_orders') }}" style="color: var(--text-light); text-decoration: none; font-weight: 600; font-size: 0.95rem; text-transform: uppercase; text-shadow: 1px 1px 2px rgba(0,0,0,0.8);">Client</a></li>
-                    <li><a href="{{ url_for('admin_menu') }}" style="color: var(--text-light); text-decoration: none; font-weight: 600; font-size: 0.95rem; text-transform: uppercase; text-shadow: 1px 1px 2px rgba(0,0,0,0.8);">Menu</a></li>
-                    <li><a href="{{ url_for('logout') }}" style="color: var(--text-light); text-decoration: none; font-weight: 600; font-size: 0.95rem; text-transform: uppercase; text-shadow: 1px 1px 2px rgba(0,0,0,0.8);">Déconnexion</a></li>
+                    <li><a href="{{ url_for('admin_analytics') }}" class="nav-link {% if request.endpoint == 'admin_analytics' %}active{% endif %}">📊 Dashboard</a></li>
+                    <li><a href="{{ url_for('admin_orders') }}" class="nav-link {% if request.endpoint == 'admin_orders' %}active{% endif %}">📦 Commandes</a></li>
+                    <li><a href="{{ url_for('admin_clients') }}" class="nav-link {% if request.endpoint == 'admin_clients' %}active{% endif %}">👥 Clients</a></li>
+                    <li><a href="{{ url_for('admin_menu') }}" class="nav-link {% if request.endpoint in ['admin_menu', 'admin_edit_menu'] %}active{% endif %}">🍕 Menu</a></li>
+                    <li><a href="{{ url_for('staff_dashboard') }}" class="nav-link {% if request.endpoint == 'staff_dashboard' %}active{% endif %}">👨‍🍳 Cuisine</a></li>
+                    <li><a href="{{ url_for('boutique') }}" class="nav-link {% if request.endpoint == 'boutique' %}active{% endif %}">🛍️ Boutique</a></li>
+                    <li><span class="role-badge">ADMIN</span></li>
+                    <li><a href="{{ url_for('logout') }}" class="nav-link nav-link-logout">Déconnexion</a></li>
                 {% else %}
-                    <li><a href="{{ url_for('index') }}" style="color: var(--text-light); text-decoration: none; font-weight: 600; font-size: 0.95rem; text-transform: uppercase; text-shadow: 1px 1px 2px rgba(0,0,0,0.8);">Menu</a></li>
+                    <li><a href="{{ url_for('index') }}" class="nav-link {% if request.endpoint in ['index', 'boutique'] %}active{% endif %}">🍕 Notre Carte</a></li>
                     {% if current_user.is_authenticated %}
                         {% if current_user.role == 'staff' %}
-                            <li><a href="{{ url_for('staff_dashboard') }}" style="color: var(--text-light); text-decoration: none; font-weight: 600; font-size: 0.95rem; text-transform: uppercase; text-shadow: 1px 1px 2px rgba(0,0,0,0.8);">Staff</a></li>
+                            <li><a href="{{ url_for('staff_dashboard') }}" class="nav-link {% if request.endpoint == 'staff_dashboard' %}active{% endif %}">📟 Cuisine KDS</a></li>
+                            <li><span class="role-badge">STAFF</span></li>
                         {% endif %}
-                        <li><a href="{{ url_for('logout') }}" style="color: var(--text-light); text-decoration: none; font-weight: 600; font-size: 0.95rem; text-transform: uppercase; text-shadow: 1px 1px 2px rgba(0,0,0,0.8);">Déconnexion ({{ current_user.username }})</a></li>
+                        <li><a href="{{ url_for('logout') }}" class="nav-link nav-link-logout">Déconnexion ({{ current_user.username }})</a></li>
                     {% else %}
-                        <li><a href="{{ url_for('login') }}" style="color: var(--text-light); text-decoration: none; font-weight: 600; font-size: 0.95rem; text-transform: uppercase; text-shadow: 1px 1px 2px rgba(0,0,0,0.8);">Connexion</a></li>
+                        <li><a href="{{ url_for('login') }}" class="nav-link {% if request.endpoint == 'login' %}active{% endif %}">🔐 Espace Pro</a></li>
                     {% endif %}
                 {% endif %}
             </ul>
@@ -32,11 +46,14 @@
     </header>
 
     <main class="container">
-        {% with messages = get_flashed_messages() %}
+        {% with messages = get_flashed_messages(with_categories=true) %}
           {% if messages %}
-            <div class="flash-messages">
-              {% for message in messages %}
-                <div class="flash">{{ message }}</div>
+            <div class="flash-messages no-print">
+              {% for category, message in messages %}
+                <div class="flash {{ category if category in ['success', 'error', 'warning', 'info'] else 'info' }}">
+                    <span>{{ message }}</span>
+                    <button type="button" class="flash-close" onclick="this.parentElement.remove()">✕</button>
+                </div>
               {% endfor %}
             </div>
           {% endif %}
@@ -46,13 +63,21 @@
     </main>
 
     <!-- Floating Cart Button -->
-    <a href="javascript:void(0)" class="floating-cart-btn" id="floating-cart" onclick="toggleCart()" style="display: none;">
-        <span>🛒 PANIER</span>
+    <a href="javascript:void(0)" class="floating-cart-btn no-print" id="floating-cart" onclick="if(typeof toggleCart === 'function'){ toggleCart(); } else { window.location.href='{{ url_for('checkout') }}'; }" style="display: none;">
+        <span>🛒 MON PANIER</span>
         <span class="cart-badge" id="cart-badge-count">0</span>
     </a>
 
-    <footer>
-        <p>&copy; 2026 Pizzeria - Tous droits réservés</p>
+    <footer class="no-print">
+        <div style="max-width: 1340px; margin: 0 auto; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem;">
+            <div>
+                <strong style="color: #fff; font-size: 1rem;">🍕 CHEF AMIN PIZZERIA</strong>
+                <span style="margin-left: 0.75rem;">Saveurs Artisanales & Cuisson au Feu de Bois</span>
+            </div>
+            <div>
+                &copy; 2026 Chef Amin Pizzeria — Tous droits réservés
+            </div>
+        </div>
     </footer>
 
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
