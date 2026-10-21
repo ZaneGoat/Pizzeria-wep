@@ -29,9 +29,10 @@ This document summarizes the Python backend routes, models, and frontend compone
 | `/boutique` | `GET` | Public | Direct link to customer storefront for all roles |
 | `/login` | `GET, POST` | Public | Authenticates `admin` and `staff` accounts |
 | `/logout` | `GET` | Authenticated | Logs out the current user |
-| `/checkout` | `GET, POST` | Public | Validates cart items server-side, creates `Client`, `Commande`, `OrderItem`, `Paiement`, `PizzaLivraison`, and `Facture` |
-| `/order_success/<id>` | `GET` | Public | Displays 4-step live order tracker and printable receipt |
+| `/checkout` | `GET, POST` | Public | Validates cart items, customizations, and promo codes (`PIZZATIME10`, `FIRSTORDER`) server-side; creates `Client`, `Commande`, `OrderItem`, `Paiement`, `PizzaLivraison`, and `Facture` |
+| `/order_success/<id>` | `GET` | Public | Displays 4-step live order tracker, item customizations, and printable receipt |
 | `/api/order/<id>/status` | `GET` | Public | JSON endpoint returning live order status for customer polling |
+| `/api/client/orders` | `GET` | Public | JSON endpoint (`?phone=...`) returning a customer's recent orders and items for the Quick Order Lookup & 1-Click Re-Order modal |
 | `/staff` | `GET` | Staff / Admin | 3-column Kitchen Display System (KDS) with itemized cards |
 | `/staff/order/<id>/update_status` | `POST` | Staff / Admin | Updates order status (`New`, `Confirmed`, `Preparing`, `Done`, `Cancelled`) |
 | `/api/staff/summary` | `GET` | Staff / Admin | JSON endpoint for KDS auto-refresh & new order chime detection |

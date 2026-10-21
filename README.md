@@ -7,8 +7,13 @@ A full-stack Flask pizzeria e-commerce platform, real-time Kitchen Display Syste
 ## Key Features
 
 ### Customer Storefront
+- **Minimalist Brand Header & Live Oven Status Pill**: Features a typographic wordmark (`PIZZA.TIME EST. 2026`), a live pulsing oven status indicator (`Four actif • 11h00 – 01h00`), and quick order tracking access.
+- **Interactive Flash Deal Spotlight**: Hero showcase featuring a live countdown timer (`HH:MM:SS`), high-resolution photography, discount badge, and 1-click Add / Customize actions.
+- **Interactive Pizza Customizer Modal**: Customize any pizza's **Size** (*Medium 28cm*, *Large 33cm +15 DH*, *XL Familiale 40cm +25 DH*), **Crust** (*Pâte Fine Artisanale*, *Pâte Pan Moelleuse*, *Bord Fourré Fromage +12 DH*), and **Extra Toppings** (*Double Mozzarella*, *Champignons Frais*, *Pepperoni Boeuf*, *Olives Noires & Origan*, *Sauce Piquante Maison*). Customizations persist end-to-end into the Kitchen KDS, Admin Order Manager, and printable customer receipts.
+- **Promo Code & Coupon Engine**: Supports instant promo codes in both the slide-over Cart Drawer and Checkout (`PIZZATIME10` for `-10%`, `FIRSTORDER` for `-15 DH` on orders >= `70 DH`), validated server-side.
+- **Quick Order Lookup & 1-Click Re-Order Modal**: Customers can look up their recent orders by phone number directly from the navbar (`Suivi Commande`), check live preparation status, or re-populate their cart in one click (`Re-commander`).
 - **Interactive Menu & Instant Filtering**: Filter by category (*Top Offres*, *Pizzas*, *Desserts*, *Boissons*) or search in real-time by name and ingredients.
-- **Slide-Over Cart Drawer**: Real-time quantity controls, toast notifications, and an interactive **Free Delivery Progress Bar** (Free delivery unlocked at `60 DH`).
+- **Slide-Over Cart Drawer**: Real-time quantity controls, toast notifications, promo code input, and an interactive **Free Delivery Progress Bar** (Free delivery unlocked at `60 DH`).
 - **Streamlined Checkout**: Supports both **Home Delivery** (*Livraison à domicile*) and **In-Store Pickup** (*Retrait au restaurant*), with **Cash on Delivery** or **Card (TPE)** payment options.
 - **Live 4-Step Order Tracker & Printable Receipt**: Customers can track their order status in real-time (*Reçue* -> *Confirmée* -> *Au Four* -> *Prête / Livrée*) with automatic polling and invoice printing.
 

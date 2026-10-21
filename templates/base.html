@@ -12,17 +12,19 @@
 <body>
     <header class="no-print">
         <nav class="navbar">
-            <a href="{{ url_for('boutique') if current_user.is_authenticated and current_user.role == 'admin' else url_for('index') }}" class="logo">
-                <span class="logo-badge">
-                    <svg class="icon icon-lg" viewBox="0 0 24 24">
-                        <polygon points="12 2 2 22 22 22 12 2"></polygon>
-                        <circle cx="12" cy="14" r="2"></circle>
-                        <circle cx="9" cy="18" r="1.5"></circle>
-                        <circle cx="15" cy="18" r="1.5"></circle>
-                    </svg>
-                </span>
-                <span>Pizza <span class="logo-accent">Time</span></span>
-            </a>
+            <div style="display: flex; align-items: center; gap: 1.25rem;">
+                <a href="{{ url_for('boutique') if current_user.is_authenticated and current_user.role == 'admin' else url_for('index') }}" class="logo">
+                    <span>PIZZA</span>
+                    <span class="logo-dot"></span>
+                    <span class="logo-accent">TIME</span>
+                    <span class="logo-sub">EST. 2026</span>
+                </a>
+
+                <div class="store-status-pill">
+                    <span class="pulse-dot"></span>
+                    <span>Four actif • 11h00 – 01h00</span>
+                </div>
+            </div>
 
             <button class="mobile-menu-toggle" onclick="toggleMobileNav()" aria-label="Menu">
                 <svg class="icon" viewBox="0 0 24 24">
@@ -84,6 +86,12 @@
                             <span>Notre Carte</span>
                         </a>
                     </li>
+                    <li>
+                        <button type="button" onclick="openOrderLookupModal()" class="nav-link">
+                            <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                            <span>Suivi Commande</span>
+                        </button>
+                    </li>
                     {% if current_user.is_authenticated %}
                         {% if current_user.role == 'staff' %}
                             <li>
@@ -132,6 +140,26 @@
         {% block content %}{% endblock %}
     </main>
 
+    <!-- Quick Order Lookup & Re-Order Modal -->
+    <div id="order-lookup-modal" class="modal-backdrop no-print" onclick="if(event.target === this) closeOrderLookupModal()">
+        <div class="modal-dialog" style="max-width: 480px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+                <h3 style="margin: 0; font-size: 1.25rem;">Suivre ou Re-commander</h3>
+                <button type="button" class="close-cart" onclick="closeOrderLookupModal()">
+                    <svg class="icon icon-sm" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            <p style="margin: 0 0 1rem; font-size: 0.86rem; color: var(--text-muted);">
+                Entrez votre numéro de téléphone pour consulter l'état de vos commandes ou recharger votre panier en 1 clic.
+            </p>
+            <form onsubmit="searchCustomerOrders(event)" style="display: flex; gap: 0.5rem; margin-bottom: 1.25rem;">
+                <input type="tel" id="lookup-phone-input" class="search-input" placeholder="Ex: 06XXXXXXXX" required>
+                <button type="submit" style="white-space: nowrap;">Rechercher</button>
+            </form>
+            <div id="lookup-orders-results" style="max-height: 320px; overflow-y: auto;"></div>
+        </div>
+    </div>
+
     <!-- Floating Cart Button -->
     <a href="javascript:void(0)" class="floating-cart-btn no-print" id="floating-cart" onclick="if(typeof toggleCart === 'function'){ toggleCart(); } else { window.location.href='{{ url_for('checkout') }}'; }" style="display: none;">
         <svg class="icon" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
@@ -141,11 +169,8 @@
 
     <footer class="no-print">
         <div style="max-width: 1360px; margin: 0 auto; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1.25rem;">
-            <div style="display: flex; align-items: center; gap: 0.75rem;">
-                <span class="logo-badge" style="width: 28px; height: 28px; font-size: 0.75rem;">
-                    <svg class="icon" viewBox="0 0 24 24"><polygon points="12 2 2 22 22 22 12 2"></polygon></svg>
-                </span>
-                <strong style="color: #fff; font-size: 0.95rem; letter-spacing: 1px;">PIZZA TIME</strong>
+            <div style="display: flex; align-items: center; gap: 0.65rem;">
+                <strong style="color: #fff; font-family: 'Outfit', sans-serif; font-size: 1.05rem; letter-spacing: 2px;">PIZZA<span style="color: var(--primary-color);">.</span>TIME</strong>
                 <span style="color: var(--text-subtle);">|</span>
                 <span style="color: var(--text-muted); font-size: 0.85rem;">Artisan Wood-Fired Pizzeria</span>
             </div>

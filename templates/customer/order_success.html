@@ -77,16 +77,21 @@
         <table class="data-table">
             <thead>
                 <tr>
-                    <th>Article</th>
+                    <th>Article & Options</th>
                     <th style="text-align: center;">Quantité</th>
-                    <th style="text-align: right;">Prix Unitaire</th>
+                    <th style="text-align: right;">Prix Base</th>
                     <th style="text-align: right;">Sous-total</th>
                 </tr>
             </thead>
             <tbody>
                 {% for item in order.items %}
                 <tr>
-                    <td style="font-weight: 700;">{{ item.pizza.name if item.pizza else 'Article #' ~ item.pizza_id }}</td>
+                    <td>
+                        <div style="font-weight: 700; color: #fff;">{{ item.pizza.name if item.pizza else 'Article #' ~ item.pizza_id }}</div>
+                        {% if item.customizations %}
+                        <div style="font-size: 0.76rem; color: var(--accent-color); margin-top: 0.15rem;">{{ item.customizations }}</div>
+                        {% endif %}
+                    </td>
                     <td style="text-align: center;">×{{ item.quantity }}</td>
                     <td style="text-align: right;">{{ "%.2f"|format(item.pizza.base_price) if item.pizza else '-' }} DH</td>
                     <td style="text-align: right; font-weight: 700; color: var(--accent-color);">

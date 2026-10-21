@@ -24,6 +24,7 @@
 
         <form id="checkout-form" method="POST">
             <input type="hidden" name="cart_data" id="cart-data-input">
+            <input type="hidden" name="promo_code" id="promo-code-input">
 
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem;">
                 <div class="form-group">
@@ -81,18 +82,35 @@
             <span id="summary-count-badge" class="status-badge status-New">0 article(s)</span>
         </div>
 
-        <div id="checkout-summary" style="max-height: 340px; overflow-y: auto; padding-right: 0.25rem;">
+        <div id="checkout-summary" style="max-height: 280px; overflow-y: auto; padding-right: 0.25rem; margin-bottom: 1rem;">
             <!-- Populated by JS -->
         </div>
 
-        <hr style="border: 0; border-top: 1px solid var(--border-subtle); margin: 1.25rem 0;">
+        <!-- Promo Code Box -->
+        <div class="promo-box">
+            <div class="promo-input-row">
+                <input type="text" id="checkout-promo-field" class="search-input" placeholder="Code promo (ex: PIZZATIME10)" style="padding: 0.5rem 0.75rem; font-size: 0.82rem; text-transform: uppercase;">
+                <button type="button" onclick="applyCheckoutPromo()" class="btn-secondary" style="padding: 0.5rem 0.85rem; font-size: 0.75rem;">Appliquer</button>
+            </div>
+            <div>
+                <span class="promo-pill-hint" onclick="setCheckoutPromo('PIZZATIME10')">PIZZATIME10 (-10%)</span>
+                <span class="promo-pill-hint" onclick="setCheckoutPromo('FIRSTORDER')">FIRSTORDER (-15 DH)</span>
+            </div>
+            <div id="checkout-promo-msg" style="font-size: 0.76rem; margin-top: 0.35rem; font-weight: 700;"></div>
+        </div>
+
+        <hr style="border: 0; border-top: 1px solid var(--border-subtle); margin: 1rem 0;">
 
         <div style="font-size: 0.95rem;">
-            <p style="display: flex; justify-content: space-between; margin: 0.5rem 0; color: var(--text-muted);">
+            <p style="display: flex; justify-content: space-between; margin: 0.45rem 0; color: var(--text-muted);">
                 <span>Sous-total</span>
                 <span style="color: #fff; font-weight: 700;"><span id="summary-subtotal">0.00</span> DH</span>
             </p>
-            <p id="summary-delivery-row" style="display: flex; justify-content: space-between; margin: 0.5rem 0; color: var(--text-muted);">
+            <p id="summary-discount-row" style="display: none; justify-content: space-between; margin: 0.45rem 0; color: var(--success); font-weight: 700;">
+                <span id="summary-discount-label">Remise Promo</span>
+                <span>-<span id="summary-discount-amount">0.00</span> DH</span>
+            </p>
+            <p id="summary-delivery-row" style="display: flex; justify-content: space-between; margin: 0.45rem 0; color: var(--text-muted);">
                 <span>Livraison</span>
                 <span><span id="summary-delivery">0.00</span> DH</span>
             </p>
@@ -112,7 +130,24 @@ if (!Array.isArray(cart) || cart.length === 0) {
     window.location.href = '/';
 }
 
+let promoCode = localStorage.getItem('pizzeria_promo') || '';
+const promoField = document.getElementById('checkout-promo-field');
+if (promoCode && promoField) {
+    promoField.value = promoCode;
+}
+
 document.getElementById('cart-data-input').value = JSON.stringify(cart);
+
+function setCheckoutPromo(code) {
+    promoField.value = code;
+    applyCheckoutPromo();
+}
+
+function applyCheckoutPromo() {
+    promoCode = (promoField.value || '').trim().toUpperCase();
+    localStorage.setItem('pizzeria_promo', promoCode);
+    updateSummary();
+}
 
 function updateSummary() {
     const summaryDiv = document.getElementById('checkout-summary');
@@ -133,9 +168,14 @@ function updateSummary() {
     let totalCount = 0;
 
     cart.forEach(item => {
-        const itemTotal = item.price * item.quantity;
+        const unitPrice = (parseFloat(item.price) || 0) + (parseFloat(item.extra_price) || 0);
+        const itemTotal = unitPrice * item.quantity;
         subtotal += itemTotal;
         totalCount += item.quantity;
+
+        const customHtml = item.customizations
+            ? `<div style="font-size: 0.74rem; color: var(--text-muted); margin-top: 0.15rem;">${item.customizations}</div>`
+            : '';
 
         const row = document.createElement('div');
         row.style.display = 'flex';
@@ -147,16 +187,39 @@ function updateSummary() {
             <div>
                 <strong style="color: #fff;">${item.name}</strong>
                 <span style="color: var(--accent-color); font-weight: 700; margin-left: 0.4rem;">×${item.quantity}</span>
+                ${customHtml}
             </div>
-            <div style="font-weight: 700; color: #e2e8f0;">${itemTotal.toFixed(2)} DH</div>
+            <div style="font-weight: 700; color: #e2e8f0; white-space: nowrap;">${itemTotal.toFixed(2)} DH</div>
         `;
         summaryDiv.appendChild(row);
     });
 
     document.getElementById('summary-count-badge').textContent = `${totalCount} article(s)`;
 
+    const promoRes = (typeof computePromoDiscount === 'function')
+        ? computePromoDiscount(promoCode, subtotal)
+        : { discount: 0, valid: false, label: '', error: '' };
+
+    const discountRow = document.getElementById('summary-discount-row');
+    const promoMsg = document.getElementById('checkout-promo-msg');
+    const hiddenPromoInput = document.getElementById('promo-code-input');
+
+    if (promoRes.valid) {
+        discountRow.style.display = 'flex';
+        document.getElementById('summary-discount-label').textContent = `Remise ${promoRes.label}`;
+        document.getElementById('summary-discount-amount').textContent = promoRes.discount.toFixed(2);
+        promoMsg.style.color = 'var(--success)';
+        promoMsg.textContent = `Code ${promoRes.code} appliqué (-${promoRes.discount.toFixed(2)} DH)`;
+        hiddenPromoInput.value = promoRes.code;
+    } else {
+        discountRow.style.display = 'none';
+        promoMsg.style.color = 'var(--warning)';
+        promoMsg.textContent = promoCode ? promoRes.error : '';
+        hiddenPromoInput.value = '';
+    }
+
     const deliveryFee = (subtotal === 0 || subtotal >= 60 || orderType === 'Pickup') ? 0 : 10;
-    const total = subtotal + deliveryFee;
+    const total = Math.max(0, subtotal - (promoRes.valid ? promoRes.discount : 0)) + deliveryFee;
 
     document.getElementById('summary-subtotal').textContent = subtotal.toFixed(2);
     document.getElementById('summary-total').textContent = total.toFixed(2);
@@ -175,6 +238,7 @@ updateSummary();
 
 document.getElementById('checkout-form').addEventListener('submit', function () {
     localStorage.removeItem('pizzeria_cart');
+    localStorage.removeItem('pizzeria_promo');
 });
 </script>
 {% endblock %}

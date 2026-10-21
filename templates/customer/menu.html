@@ -3,7 +3,9 @@
 {% block title %}Notre Carte — Pizza Time{% endblock %}
 
 {% block content %}
-<!-- Hero Banner -->
+{% set signature_pizza = (pizzas|selectattr('name', 'equalto', 'Pizza Time Spéciale')|first) or (pizzas|selectattr('category', 'equalto', 'Pizza')|first) or (pizzas|first) %}
+
+<!-- Hero Banner with Interactive Flash Deal Spotlight -->
 <section class="hero-banner">
     <div>
         <div class="hero-tag">
@@ -12,7 +14,7 @@
         </div>
         <h1 class="hero-title">L'Excellence de la Pizza <span>Artisanale</span> à Domicile</h1>
         <p class="hero-subtitle">
-            Ingrédients nobles, mozzarella fior di latte et sauces signatures mijotées maison par Pizza Time. Commandez en direct et suivez votre livraison en temps réel.
+            Ingrédients nobles, mozzarella fior di latte et recettes signatures mijotées maison par Pizza Time. Personnalisez votre pâte, votre taille et suivez votre livraison en direct.
         </p>
         <div class="hero-features">
             <div class="hero-feature-pill">
@@ -21,17 +23,75 @@
             </div>
             <div class="hero-feature-pill">
                 <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                <span>Préparation & Livraison 30–45 min</span>
+                <span>Livraison Express 30–45 min</span>
             </div>
             <div class="hero-feature-pill">
-                <svg class="icon" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
-                <span>100% Ingrédients Frais</span>
+                <svg class="icon" viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+                <span>Code Promo : PIZZATIME10 (-10%)</span>
             </div>
         </div>
     </div>
-    <div style="position: relative;">
-        <img src="{{ url_for('static', filename='img/Menu1.png') }}" alt="Pizza Time Carte" style="width: 100%; max-height: 250px; object-fit: cover; border-radius: 20px; border: 1px solid var(--border-medium); box-shadow: var(--shadow-lg);">
+
+    {% if signature_pizza %}
+    <div class="flash-deal-card">
+        <div class="flash-deal-header">
+            <span class="tag-badge tag-badge-deal">FLASH DEAL • -20%</span>
+            <div class="countdown-timer">
+                <svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                <span id="deal-countdown">03:45:12</span>
+            </div>
+        </div>
+
+        <div class="flash-deal-body">
+            {% if signature_pizza.photo_url %}
+            <img src="{{ url_for('static', filename='img/' + signature_pizza.photo_url) }}" alt="{{ signature_pizza.name }}" class="flash-deal-img">
+            {% else %}
+            <div class="flash-deal-img" style="display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.05);">
+                <svg class="icon icon-lg" viewBox="0 0 24 24"><polygon points="12 2 2 22 22 22 12 2"></polygon></svg>
+            </div>
+            {% endif %}
+
+            <div>
+                <div style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1px; color: var(--accent-color); font-weight: 800; margin-bottom: 0.2rem;">
+                    Création Signature • 4.9/5
+                </div>
+                <h3 style="margin: 0 0 0.35rem; font-size: 1.3rem; color: #fff;">{{ signature_pizza.name }}</h3>
+                <p style="margin: 0 0 0.85rem; font-size: 0.82rem; color: var(--text-muted); line-height: 1.4;">
+                    {{ signature_pizza.description }}
+                </p>
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap;">
+                    <div>
+                        <span style="text-decoration: line-through; color: var(--text-subtle); font-size: 0.85rem; margin-right: 0.4rem;">
+                            {{ "%.0f"|format(signature_pizza.base_price + 20) }} DH
+                        </span>
+                        <strong style="font-family: 'Outfit', sans-serif; font-size: 1.45rem; color: var(--accent-color);">
+                            {{ "%.0f"|format(signature_pizza.base_price) }} DH
+                        </strong>
+                    </div>
+                    <div style="display: flex; gap: 0.4rem;">
+                        <button type="button"
+                                class="btn-secondary"
+                                data-id="{{ signature_pizza.id }}"
+                                data-name="{{ signature_pizza.name }}"
+                                data-price="{{ signature_pizza.base_price }}"
+                                onclick="openCustomizerFromBtn(this)"
+                                style="padding: 0.55rem 0.85rem; font-size: 0.75rem;">
+                            Options
+                        </button>
+                        <button type="button"
+                                data-id="{{ signature_pizza.id }}"
+                                data-name="{{ signature_pizza.name }}"
+                                data-price="{{ signature_pizza.base_price }}"
+                                onclick="handleAddToCart(this)"
+                                style="padding: 0.55rem 0.95rem; font-size: 0.75rem;">
+                            Profiter
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+    {% endif %}
 </section>
 
 <!-- Filter & Search Toolbar -->
@@ -44,14 +104,14 @@
         <button type="button" class="category-pill" onclick="filterMenuCategory('Boisson', this)">Boissons</button>
     </div>
     <div style="display: flex; align-items: center; gap: 0.75rem; flex: 1; max-width: 320px; position: relative;">
-        <input type="search" id="menu-search-input" class="search-input" placeholder="Rechercher pizza, boisson..." oninput="applyMenuFilters()" style="padding-left: 2.4rem;">
+        <input type="search" id="menu-search-input" class="search-input" placeholder="Rechercher pizza, ingrédient..." oninput="applyMenuFilters()" style="padding-left: 2.4rem;">
         <svg class="icon" style="position: absolute; left: 0.85rem; color: var(--text-muted); pointer-events: none;" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
     </div>
 </div>
 
 {% set sections = [
     {'cat': 'Top Offre', 'id': 'section-offres', 'title': 'Formules & Top Offres', 'subtitle': 'Nos formules économiques et duos gourmands à prix préférentiel', 'tag': 'OFFRE'},
-    {'cat': 'Pizza', 'id': 'section-pizzas', 'title': 'Pizzas Artisanales', 'subtitle': 'Façonnées à la main, garnies à la minute et dorées au four', 'tag': 'PIZZA'},
+    {'cat': 'Pizza', 'id': 'section-pizzas', 'title': 'Pizzas Artisanales', 'subtitle': 'Façonnées à la main, personnalisables selon vos envies et dorées au four', 'tag': 'PIZZA'},
     {'cat': 'Dessert', 'id': 'section-desserts', 'title': 'Desserts Maison', 'subtitle': 'Douceurs authentiques pour sublimer votre dégustation', 'tag': 'DESSERT'},
     {'cat': 'Boisson', 'id': 'section-boissons', 'title': 'Boissons Fraîches', 'subtitle': 'Sodas glacés, jus pressés naturels et expresso', 'tag': 'BOISSON'}
 ] %}
@@ -100,15 +160,29 @@
                         <div class="pizza-price">
                             {{ "%.0f"|format(pizza.base_price) if pizza.base_price == (pizza.base_price|int) else "%.2f"|format(pizza.base_price) }} <small>DH</small>
                         </div>
-                        <button type="button"
-                                data-id="{{ pizza.id }}"
-                                data-name="{{ pizza.name }}"
-                                data-price="{{ pizza.base_price }}"
-                                onclick="handleAddToCart(this)"
-                                style="padding: 0.65rem 1.15rem; font-size: 0.8rem;">
-                            <svg class="icon icon-sm" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                            <span>Ajouter</span>
-                        </button>
+                        <div style="display: flex; gap: 0.4rem;">
+                            {% if pizza.category in ['Pizza', 'Top Offre'] %}
+                            <button type="button"
+                                    class="btn-secondary"
+                                    data-id="{{ pizza.id }}"
+                                    data-name="{{ pizza.name }}"
+                                    data-price="{{ pizza.base_price }}"
+                                    onclick="openCustomizerFromBtn(this)"
+                                    style="padding: 0.6rem 0.75rem; font-size: 0.74rem;"
+                                    title="Personnaliser taille, pâte et suppléments">
+                                Options
+                            </button>
+                            {% endif %}
+                            <button type="button"
+                                    data-id="{{ pizza.id }}"
+                                    data-name="{{ pizza.name }}"
+                                    data-price="{{ pizza.base_price }}"
+                                    onclick="handleAddToCart(this)"
+                                    style="padding: 0.6rem 0.95rem; font-size: 0.78rem;">
+                                <svg class="icon icon-sm" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                                <span>Ajouter</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </article>
@@ -124,6 +198,87 @@
         <h3 style="margin-bottom: 0.5rem;">Aucun article trouvé</h3>
         <p style="color: var(--text-muted); margin-bottom: 1.25rem;">Modifiez votre recherche ou sélectionnez une autre catégorie.</p>
         <button type="button" class="btn-secondary" onclick="resetMenuFilters()">Voir tout le menu</button>
+    </div>
+</div>
+
+<!-- Interactive Pizza Customizer Modal -->
+<div id="customizer-modal" class="modal-backdrop" onclick="if(event.target === this) closeCustomizer()">
+    <div class="modal-dialog">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.2rem; padding-bottom: 0.85rem; border-bottom: 1px solid var(--border-subtle);">
+            <div>
+                <span class="tag-badge" style="margin-bottom: 0.3rem; display: inline-block;">SUR MESURE</span>
+                <h3 id="customizer-title" style="margin: 0; font-size: 1.35rem; color: #fff;">Personnaliser votre Pizza</h3>
+            </div>
+            <button type="button" class="close-cart" onclick="closeCustomizer()">
+                <svg class="icon icon-sm" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+        </div>
+
+        <!-- Step 1: Size -->
+        <label style="display: block; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); margin-bottom: 0.55rem;">1. Choisissez la Taille</label>
+        <div class="option-grid" id="customizer-sizes">
+            <div class="option-chip selected" data-label="Medium 28cm" data-extra="0" onclick="selectSingleOption('customizer-sizes', this)">
+                <strong>Medium (28cm)</strong>
+                <small>Prix standard</small>
+            </div>
+            <div class="option-chip" data-label="Large 33cm" data-extra="15" onclick="selectSingleOption('customizer-sizes', this)">
+                <strong>Large (33cm)</strong>
+                <small>+15 DH</small>
+            </div>
+            <div class="option-chip" data-label="Mega XL 40cm" data-extra="28" onclick="selectSingleOption('customizer-sizes', this)">
+                <strong>Mega XL (40cm)</strong>
+                <small>+28 DH</small>
+            </div>
+        </div>
+
+        <!-- Step 2: Crust -->
+        <label style="display: block; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); margin-bottom: 0.55rem;">2. Type de Pâte</label>
+        <div class="option-grid" id="customizer-crusts">
+            <div class="option-chip selected" data-label="Pâte Fine" data-extra="0" onclick="selectSingleOption('customizer-crusts', this)">
+                <strong>Fine Artisanale</strong>
+                <small>Inclus</small>
+            </div>
+            <div class="option-chip" data-label="Pâte Pan" data-extra="5" onclick="selectSingleOption('customizer-crusts', this)">
+                <strong>Moelleuse Pan</strong>
+                <small>+5 DH</small>
+            </div>
+            <div class="option-chip" data-label="Bord Fourré" data-extra="10" onclick="selectSingleOption('customizer-crusts', this)">
+                <strong>Bord Fromage</strong>
+                <small>+10 DH</small>
+            </div>
+        </div>
+
+        <!-- Step 3: Extra Toppings -->
+        <label style="display: block; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); margin-bottom: 0.55rem;">3. Suppléments Gourmands (Optionnel)</label>
+        <div class="toppings-grid" id="customizer-toppings">
+            <div class="topping-chip" data-label="+Double Mozza" data-extra="8" onclick="toggleToppingChip(this)">
+                <span>Double Mozzarella</span>
+                <strong style="color: var(--accent-color);">+8 DH</strong>
+            </div>
+            <div class="topping-chip" data-label="+Champignons" data-extra="6" onclick="toggleToppingChip(this)">
+                <span>Champignons Frais</span>
+                <strong style="color: var(--accent-color);">+6 DH</strong>
+            </div>
+            <div class="topping-chip" data-label="+Olives Noires" data-extra="4" onclick="toggleToppingChip(this)">
+                <span>Olives Noires</span>
+                <strong style="color: var(--accent-color);">+4 DH</strong>
+            </div>
+            <div class="topping-chip" data-label="+Sauce Piquante" data-extra="0" onclick="toggleToppingChip(this)">
+                <span>Sauce Piquante</span>
+                <strong style="color: var(--success);">Offert</strong>
+            </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 1rem; border-top: 1px solid var(--border-subtle);">
+            <div>
+                <small style="color: var(--text-muted); display: block; font-size: 0.74rem;">PRIX TOTAL ARTICLE</small>
+                <strong id="customizer-live-price" style="font-family: 'Outfit', sans-serif; font-size: 1.55rem; color: var(--accent-color);">0.00 DH</strong>
+            </div>
+            <button type="button" onclick="confirmCustomizedPizza()" style="padding: 0.9rem 1.5rem;">
+                <svg class="icon icon-sm" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                <span>Ajouter au Panier</span>
+            </button>
+        </div>
     </div>
 </div>
 
@@ -144,31 +299,48 @@
         </div>
 
         <!-- Free Delivery Progress Banner -->
-        <div id="free-delivery-banner" style="margin-top: 1rem; padding: 0.85rem 1rem; border-radius: 12px; background: rgba(255, 255, 255, 0.04); border: 1px solid var(--border-subtle); font-size: 0.82rem;">
-            <div id="free-delivery-msg" style="margin-bottom: 0.5rem; font-weight: 600;"></div>
+        <div id="free-delivery-banner" style="margin-top: 0.9rem; padding: 0.75rem 1rem; border-radius: 12px; background: rgba(255, 255, 255, 0.04); border: 1px solid var(--border-subtle); font-size: 0.8rem;">
+            <div id="free-delivery-msg" style="margin-bottom: 0.45rem; font-weight: 600;"></div>
             <div style="width: 100%; height: 5px; background: rgba(255,255,255,0.08); border-radius: 999px; overflow: hidden;">
                 <div id="free-delivery-bar" style="height: 100%; width: 0%; background: var(--success); transition: width 0.3s ease;"></div>
             </div>
         </div>
 
-        <ul id="cart-items" style="list-style: none; padding: 0; margin: 1rem 0; flex: 1; overflow-y: auto;"></ul>
+        <ul id="cart-items" style="list-style: none; padding: 0; margin: 0.85rem 0; flex: 1; overflow-y: auto;"></ul>
 
-        <div style="border-top: 1px solid var(--border-subtle); padding-top: 1.15rem;">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.92rem;">
+        <!-- Promo Code Engine -->
+        <div class="promo-box">
+            <div class="promo-input-row">
+                <input type="text" id="cart-promo-input" class="search-input" placeholder="Code promo (ex: PIZZATIME10)" style="padding: 0.5rem 0.75rem; font-size: 0.82rem; text-transform: uppercase;">
+                <button type="button" onclick="applyCartPromo()" class="btn-secondary" style="padding: 0.5rem 0.85rem; font-size: 0.75rem;">Appliquer</button>
+            </div>
+            <div>
+                <span class="promo-pill-hint" onclick="quickSetPromo('PIZZATIME10')">PIZZATIME10 (-10%)</span>
+                <span class="promo-pill-hint" onclick="quickSetPromo('FIRSTORDER')">FIRSTORDER (-15 DH)</span>
+            </div>
+            <div id="cart-promo-feedback" style="font-size: 0.76rem; margin-top: 0.35rem; font-weight: 700;"></div>
+        </div>
+
+        <div style="border-top: 1px solid var(--border-subtle); padding-top: 1rem;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.4rem; color: var(--text-muted); font-size: 0.9rem;">
                 <span>Sous-total</span>
                 <span><strong id="cart-subtotal" style="color: #fff;">0.00</strong> DH</span>
             </div>
-            <div id="delivery-fee-text" style="display: flex; justify-content: space-between; margin-bottom: 0.75rem; font-size: 0.92rem;">
+            <div id="cart-discount-row" style="display: none; justify-content: space-between; margin-bottom: 0.4rem; color: var(--success); font-size: 0.9rem; font-weight: 700;">
+                <span id="cart-discount-label">Remise Promo</span>
+                <span>-<span id="cart-discount-amount">0.00</span> DH</span>
+            </div>
+            <div id="delivery-fee-text" style="display: flex; justify-content: space-between; margin-bottom: 0.65rem; font-size: 0.9rem;">
                 <span>Livraison</span>
                 <span><span id="delivery-fee">10.00</span> DH</span>
             </div>
-            <div style="display: flex; justify-content: space-between; align-items: baseline; font-size: 1.35rem; font-weight: 900; color: #fff; padding-top: 0.65rem; border-top: 1px dashed var(--border-subtle);">
+            <div style="display: flex; justify-content: space-between; align-items: baseline; font-size: 1.35rem; font-weight: 900; color: #fff; padding-top: 0.6rem; border-top: 1px dashed var(--border-subtle);">
                 <span>TOTAL</span>
                 <span style="color: var(--accent-color);"><span id="cart-total">0.00</span> DH</span>
             </div>
 
-            <a href="{{ url_for('checkout') }}" id="checkout-link" style="text-decoration: none; display: block; margin-top: 1.25rem;">
-                <button type="button" id="checkout-cta-btn" style="width: 100%; padding: 1.05rem; font-size: 0.95rem;">
+            <a href="{{ url_for('checkout') }}" id="checkout-link" style="text-decoration: none; display: block; margin-top: 1rem;">
+                <button type="button" id="checkout-cta-btn" style="width: 100%; padding: 1rem; font-size: 0.92rem;">
                     <span>Passer la Commande</span>
                     <svg class="icon icon-sm" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
                 </button>
@@ -188,7 +360,24 @@ try {
     cart = [];
 }
 
+let activePromoCode = localStorage.getItem('pizzeria_promo') || '';
+if (activePromoCode && document.getElementById('cart-promo-input')) {
+    document.getElementById('cart-promo-input').value = activePromoCode;
+}
+
 let activeCategory = 'all';
+let currentCustomPizza = { id: 0, name: '', basePrice: 0 };
+
+// Live Flash Deal Countdown Timer
+let countdownSeconds = 3 * 3600 + 45 * 60 + 12;
+setInterval(() => {
+    countdownSeconds = countdownSeconds > 0 ? countdownSeconds - 1 : 3 * 3600;
+    const h = String(Math.floor(countdownSeconds / 3600)).padStart(2, '0');
+    const m = String(Math.floor((countdownSeconds % 3600) / 60)).padStart(2, '0');
+    const s = String(countdownSeconds % 60).padStart(2, '0');
+    const el = document.getElementById('deal-countdown');
+    if (el) el.textContent = `${h}:${m}:${s}`;
+}, 1000);
 
 function filterMenuCategory(category, btnEl) {
     activeCategory = category;
@@ -234,6 +423,76 @@ function resetMenuFilters() {
     filterMenuCategory('all', firstPill);
 }
 
+// Customizer Modal Logic
+function openCustomizerFromBtn(btn) {
+    const id = parseInt(btn.getAttribute('data-id'), 10);
+    const name = btn.getAttribute('data-name');
+    const price = parseFloat(btn.getAttribute('data-price'));
+    currentCustomPizza = { id, name, basePrice: price };
+
+    document.getElementById('customizer-title').textContent = name;
+    document.querySelectorAll('#customizer-sizes .option-chip').forEach((c, i) => c.classList.toggle('selected', i === 0));
+    document.querySelectorAll('#customizer-crusts .option-chip').forEach((c, i) => c.classList.toggle('selected', i === 0));
+    document.querySelectorAll('#customizer-toppings .topping-chip').forEach(c => c.classList.remove('selected'));
+
+    updateCustomizerLivePrice();
+    document.getElementById('customizer-modal').style.display = 'flex';
+}
+
+function closeCustomizer() {
+    document.getElementById('customizer-modal').style.display = 'none';
+}
+
+function selectSingleOption(containerId, chipEl) {
+    document.querySelectorAll(`#${containerId} .option-chip`).forEach(c => c.classList.remove('selected'));
+    chipEl.classList.add('selected');
+    updateCustomizerLivePrice();
+}
+
+function toggleToppingChip(chipEl) {
+    chipEl.classList.toggle('selected');
+    updateCustomizerLivePrice();
+}
+
+function getCustomizerSelection() {
+    const sizeChip = document.querySelector('#customizer-sizes .option-chip.selected');
+    const crustChip = document.querySelector('#customizer-crusts .option-chip.selected');
+    const toppingChips = document.querySelectorAll('#customizer-toppings .topping-chip.selected');
+
+    let extraPrice = 0;
+    const parts = [];
+
+    if (sizeChip) {
+        parts.push(sizeChip.getAttribute('data-label'));
+        extraPrice += parseFloat(sizeChip.getAttribute('data-extra') || '0');
+    }
+    if (crustChip) {
+        parts.push(crustChip.getAttribute('data-label'));
+        extraPrice += parseFloat(crustChip.getAttribute('data-extra') || '0');
+    }
+    toppingChips.forEach(t => {
+        parts.push(t.getAttribute('data-label'));
+        extraPrice += parseFloat(t.getAttribute('data-extra') || '0');
+    });
+
+    return {
+        extraPrice,
+        customizations: parts.join(' • ')
+    };
+}
+
+function updateCustomizerLivePrice() {
+    const sel = getCustomizerSelection();
+    const finalPrice = currentCustomPizza.basePrice + sel.extraPrice;
+    document.getElementById('customizer-live-price').textContent = `${finalPrice.toFixed(2)} DH`;
+}
+
+function confirmCustomizedPizza() {
+    const sel = getCustomizerSelection();
+    addToCart(currentCustomPizza.id, currentCustomPizza.name, currentCustomPizza.basePrice, sel.extraPrice, sel.customizations);
+    closeCustomizer();
+}
+
 function toggleCart() {
     const overlay = document.getElementById('cart-overlay');
     overlay.style.display = (overlay.style.display === 'flex') ? 'none' : 'flex';
@@ -254,15 +513,22 @@ function handleAddToCart(btn) {
     const id = parseInt(btn.getAttribute('data-id'), 10);
     const name = btn.getAttribute('data-name');
     const price = parseFloat(btn.getAttribute('data-price'));
-    addToCart(id, name, price);
+    addToCart(id, name, price, 0, '');
 }
 
-function addToCart(id, name, price) {
-    const existingItem = cart.find(item => item.id === id);
+function addToCart(id, name, basePrice, extraPrice = 0, customizations = '') {
+    const existingItem = cart.find(item => item.id === id && (item.customizations || '') === customizations);
     if (existingItem) {
         existingItem.quantity += 1;
     } else {
-        cart.push({ id, name, price, quantity: 1 });
+        cart.push({
+            id,
+            name,
+            price: basePrice,
+            extra_price: extraPrice,
+            customizations,
+            quantity: 1
+        });
     }
     saveCart();
     updateCartUI();
@@ -277,6 +543,21 @@ function clearCart() {
     updateCartUI();
 }
 
+function quickSetPromo(code) {
+    const input = document.getElementById('cart-promo-input');
+    if (input) {
+        input.value = code;
+        applyCartPromo();
+    }
+}
+
+function applyCartPromo() {
+    const input = document.getElementById('cart-promo-input');
+    activePromoCode = (input ? input.value : '').trim().toUpperCase();
+    localStorage.setItem('pizzeria_promo', activePromoCode);
+    updateCartUI();
+}
+
 function updateCartUI() {
     const list = document.getElementById('cart-items');
     list.innerHTML = '';
@@ -284,9 +565,9 @@ function updateCartUI() {
 
     if (cart.length === 0) {
         list.innerHTML = `
-            <li style="text-align: center; padding: 3rem 1rem; color: var(--text-muted);">
+            <li style="text-align: center; padding: 2.5rem 1rem; color: var(--text-muted);">
                 <div style="color: var(--text-subtle); margin-bottom: 0.5rem;">
-                    <svg class="icon icon-lg" style="width: 2.5rem; height: 2.5rem;" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+                    <svg class="icon icon-lg" style="width: 2.4rem; height: 2.4rem;" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
                 </div>
                 <p style="margin: 0; font-weight: 600; color: #cbd5e1;">Votre panier est vide</p>
                 <small style="color: var(--text-subtle);">Sélectionnez vos pizzas pour commencer</small>
@@ -299,22 +580,28 @@ function updateCartUI() {
         li.style.display = 'flex';
         li.style.justifyContent = 'space-between';
         li.style.alignItems = 'center';
-        li.style.padding = '0.85rem 0.5rem';
+        li.style.padding = '0.75rem 0.4rem';
         li.style.borderBottom = '1px solid rgba(255,255,255,0.05)';
 
-        const itemPrice = item.price * item.quantity;
+        const unitPrice = (parseFloat(item.price) || 0) + (parseFloat(item.extra_price) || 0);
+        const itemPrice = unitPrice * item.quantity;
         subtotal += itemPrice;
+
+        const customTag = item.customizations
+            ? `<div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.15rem;">${item.customizations}</div>`
+            : '';
 
         li.innerHTML = `
             <div style="flex: 1; padding-right: 0.75rem;">
-                <div style="font-weight: 700; color: #fff; font-size: 0.95rem;">${item.name}</div>
-                <div style="color: var(--accent-color); font-size: 0.82rem; font-weight: 700;">${item.price.toFixed(2)} DH / unité</div>
+                <div style="font-weight: 700; color: #fff; font-size: 0.92rem;">${item.name}</div>
+                ${customTag}
+                <div style="color: var(--accent-color); font-size: 0.8rem; font-weight: 700; margin-top: 0.15rem;">${unitPrice.toFixed(2)} DH / unité</div>
             </div>
-            <div style="display: flex; align-items: center; gap: 0.65rem;">
-                <div style="display: flex; align-items: center; background: rgba(255,255,255,0.06); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 0.15rem;">
-                    <button type="button" onclick="changeQty(${index}, -1)" style="padding: 0.2rem 0.55rem; background: none; border: none; box-shadow: none; font-size: 1rem; color: #fff;">−</button>
-                    <span style="font-weight: 800; min-width: 24px; text-align: center; color: white; font-size: 0.88rem;">${item.quantity}</span>
-                    <button type="button" onclick="changeQty(${index}, 1)" style="padding: 0.2rem 0.55rem; background: none; border: none; box-shadow: none; font-size: 1rem; color: #fff;">+</button>
+            <div style="display: flex; align-items: center; gap: 0.55rem;">
+                <div style="display: flex; align-items: center; background: rgba(255,255,255,0.06); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 0.12rem;">
+                    <button type="button" onclick="changeQty(${index}, -1)" style="padding: 0.18rem 0.5rem; background: none; border: none; box-shadow: none; font-size: 0.95rem; color: #fff;">−</button>
+                    <span style="font-weight: 800; min-width: 22px; text-align: center; color: white; font-size: 0.85rem;">${item.quantity}</span>
+                    <button type="button" onclick="changeQty(${index}, 1)" style="padding: 0.18rem 0.5rem; background: none; border: none; box-shadow: none; font-size: 0.95rem; color: #fff;">+</button>
                 </div>
                 <button type="button" onclick="removeFromCart(${index})" style="background: none; border: none; color: #ef4444; padding: 0.25rem; box-shadow: none;" title="Supprimer">
                     <svg class="icon icon-sm" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
@@ -324,8 +611,32 @@ function updateCartUI() {
         list.appendChild(li);
     });
 
+    // Promo evaluation
+    const promoRes = (typeof computePromoDiscount === 'function')
+        ? computePromoDiscount(activePromoCode, subtotal)
+        : { discount: 0, valid: false, label: '', error: '' };
+
+    const discountRow = document.getElementById('cart-discount-row');
+    const feedbackEl = document.getElementById('cart-promo-feedback');
+
+    if (promoRes.valid && subtotal > 0) {
+        discountRow.style.display = 'flex';
+        document.getElementById('cart-discount-label').textContent = `Remise ${promoRes.label}`;
+        document.getElementById('cart-discount-amount').textContent = promoRes.discount.toFixed(2);
+        if (feedbackEl) {
+            feedbackEl.style.color = 'var(--success)';
+            feedbackEl.textContent = `Code ${promoRes.code} actif (-${promoRes.discount.toFixed(2)} DH)`;
+        }
+    } else {
+        discountRow.style.display = 'none';
+        if (feedbackEl) {
+            feedbackEl.style.color = 'var(--warning)';
+            feedbackEl.textContent = (activePromoCode && subtotal > 0) ? promoRes.error : '';
+        }
+    }
+
     const deliveryFee = (subtotal === 0 || subtotal >= 60) ? 0 : 10;
-    const total = subtotal + deliveryFee;
+    const total = Math.max(0, subtotal - (promoRes.valid ? promoRes.discount : 0)) + deliveryFee;
 
     document.getElementById('cart-subtotal').textContent = subtotal.toFixed(2);
     document.getElementById('cart-total').textContent = total.toFixed(2);

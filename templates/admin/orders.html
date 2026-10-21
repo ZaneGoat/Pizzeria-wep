@@ -27,10 +27,11 @@
                         <span>{{ order.client.phone }}</span>
                     </a>
                 </td>
-                <td style="max-width: 280px;">
+                <td style="max-width: 310px;">
                     {% for item in order.items %}
-                        <span style="display: inline-block; background: rgba(255,255,255,0.06); border: 1px solid var(--border-subtle); padding: 0.15rem 0.5rem; border-radius: 6px; font-size: 0.76rem; margin: 0.1rem;">
+                        <span style="display: inline-block; background: rgba(255,255,255,0.06); border: 1px solid var(--border-subtle); padding: 0.18rem 0.55rem; border-radius: 6px; font-size: 0.76rem; margin: 0.12rem;">
                             <strong style="color: var(--accent-color);">{{ item.quantity }}×</strong> {{ item.pizza.name if item.pizza else 'Article #' ~ item.pizza_id }}
+                            {% if item.customizations %}<small style="color: var(--text-muted);">({{ item.customizations }})</small>{% endif %}
                         </span>
                     {% else %}
                         <span style="color: var(--text-muted); font-size: 0.8rem;">-</span>

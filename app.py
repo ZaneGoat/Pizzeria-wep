@@ -25,6 +25,11 @@ login_manager.login_message_category = 'warning'
 
 VALID_ORDER_STATUSES = ['New', 'Confirmed', 'Preparing', 'Done', 'Cancelled']
 
+PROMO_CODES = {
+    'PIZZATIME10': {'type': 'percent', 'value': 10, 'min_subtotal': 0, 'label': '-10% (PIZZATIME10)'},
+    'FIRSTORDER': {'type': 'fixed', 'value': 15, 'min_subtotal': 70, 'label': '-15 DH (FIRSTORDER)'}
+}
+
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -56,6 +61,18 @@ def ensure_default_users():
         changed = True
     if changed:
         db.session.commit()
+
+
+def calculate_promo_discount(code, subtotal):
+    if not code:
+        return 0.0, None
+    clean_code = code.strip().upper()
+    promo = PROMO_CODES.get(clean_code)
+    if not promo or subtotal < promo['min_subtotal']:
+        return 0.0, None
+    if promo['type'] == 'percent':
+        return round(subtotal * (promo['value'] / 100.0), 2), clean_code
+    return float(min(subtotal, promo['value'])), clean_code
 
 
 # --- Storefront & Auth Routes ---
@@ -90,7 +107,7 @@ def login():
         user = User.query.filter_by(username=username).first()
         if user and check_password_hash(user.password_hash, password):
             login_user(user)
-            flash(f'Bienvenue, {user.username} !', 'success')
+            flash(f'Bienvenue sur Pizza Time, {user.username}.', 'success')
             if user.role == 'admin':
                 return redirect(url_for('admin_analytics'))
             elif user.role == 'staff':
@@ -271,7 +288,7 @@ def api_staff_summary():
     })
 
 
-# --- Customer Checkout & Order Tracking Routes ---
+# --- Customer Checkout, Promo & Order Tracking Routes ---
 
 @app.route('/checkout', methods=['GET', 'POST'])
 def checkout():
@@ -282,6 +299,7 @@ def checkout():
         neighborhood = (request.form.get('neighborhood') or '').strip()
         order_type = request.form.get('order_type') or 'Delivery'
         payment_method = request.form.get('payment_method') or 'Cash'
+        promo_code = (request.form.get('promo_code') or '').strip()
         cart_data = request.form.get('cart_data') or '[]'
 
         if not full_name or not phone:
@@ -306,21 +324,25 @@ def checkout():
             try:
                 pizza_id = int(item.get('id'))
                 qty = max(1, int(item.get('quantity', 1)))
+                custom_str = (item.get('customizations') or '').strip()
+                extra_price = max(0.0, min(60.0, float(item.get('extra_price', 0.0))))
             except (ValueError, TypeError, AttributeError):
                 continue
 
             pizza_obj = db.session.get(Pizza, pizza_id)
             if pizza_obj:
-                unit_price = float(pizza_obj.base_price)
-                validated_items.append((pizza_obj, qty, unit_price))
+                unit_price = float(pizza_obj.base_price) + extra_price
+                validated_items.append((pizza_obj, qty, unit_price, custom_str))
                 subtotal += unit_price * qty
 
         if not validated_items:
             flash('Aucun article valide trouvé dans votre panier.', 'error')
             return redirect(url_for('index'))
 
+        discount_amount, applied_code = calculate_promo_discount(promo_code, subtotal)
+        discounted_subtotal = max(0.0, subtotal - discount_amount)
         delivery_fee = 0.0 if (subtotal >= 60 or order_type == 'Pickup') else 10.0
-        total = subtotal + delivery_fee
+        total = round(discounted_subtotal + delivery_fee, 2)
 
         # 1. Create or Update User and Client
         user = User.query.filter_by(username=phone).first()
@@ -353,12 +375,13 @@ def checkout():
         db.session.add(new_order)
         db.session.flush()
 
-        # 3. Add Items
-        for pizza_obj, qty, _ in validated_items:
+        # 3. Add Items with Customizations
+        for pizza_obj, qty, _, custom_str in validated_items:
             order_item = OrderItem(
                 commande_id=new_order.id,
                 pizza_id=pizza_obj.id,
-                quantity=qty
+                quantity=qty,
+                customizations=custom_str if custom_str else None
             )
             db.session.add(order_item)
 
@@ -382,11 +405,12 @@ def checkout():
             db.session.add(delivery)
 
         # 6. Generate Invoice Record (Facture)
-        inv_num = f"INV-{datetime.utcnow().strftime('%Y%m%d')}-{new_order.id:04d}"
+        inv_num = f"PT-{datetime.utcnow().strftime('%Y%m%d')}-{new_order.id:04d}"
+        promo_note = f" (Promo {applied_code}: -{discount_amount:.2f} DH)" if applied_code else ""
         facture = Facture(
             commande_id=new_order.id,
             invoice_number=inv_num,
-            content_html=f"Facture {inv_num} - Client: {full_name} - Total: {total:.2f} DH"
+            content_html=f"Facture {inv_num} - Client: {full_name} - Total: {total:.2f} DH{promo_note}"
         )
         db.session.add(facture)
 
@@ -419,6 +443,39 @@ def api_order_status(order_id):
         'status_label': status_labels.get(order.status, order.status),
         'total_price': order.total_price
     })
+
+
+@app.route('/api/client/orders')
+def api_client_orders():
+    phone = (request.args.get('phone') or '').strip()
+    if not phone:
+        return jsonify({'orders': [], 'error': 'Numéro requis'}), 400
+    client = Client.query.filter(Client.phone.ilike(f'%{phone}%')).first()
+    if not client:
+        return jsonify({'orders': [], 'client_name': None})
+
+    result = []
+    for o in client.orders[:5]:
+        items_data = []
+        for oi in o.items:
+            if oi.pizza:
+                items_data.append({
+                    'id': oi.pizza.id,
+                    'name': oi.pizza.name,
+                    'price': oi.pizza.base_price,
+                    'quantity': oi.quantity,
+                    'customizations': oi.customizations or ''
+                })
+        result.append({
+            'id': o.id,
+            'date': o.created_at.strftime('%d/%m/%Y %H:%M'),
+            'status': o.status,
+            'order_type': o.order_type,
+            'total_price': o.total_price,
+            'url': url_for('order_success', order_id=o.id),
+            'items': items_data
+        })
+    return jsonify({'client_name': client.full_name, 'orders': result})
 
 
 # --- Admin Orders, Clients & Analytics ---
@@ -528,7 +585,6 @@ def admin_analytics():
         d_str = str(today - timedelta(days=i))
         daily_sales.append({'date': d_str, 'revenue': round(sales_by_date.get(d_str, 0.0), 2)})
 
-    # Status breakdown for doughnut chart
     status_counts = {
         status: Commande.query.filter_by(status=status).count()
         for status in VALID_ORDER_STATUSES

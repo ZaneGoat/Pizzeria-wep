@@ -70,8 +70,11 @@
                 <div style="background: rgba(9, 13, 22, 0.6); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 0.65rem 0.8rem; margin-bottom: 0.85rem;">
                     <div style="font-size: 0.68rem; text-transform: uppercase; color: var(--text-muted); font-weight: 800; letter-spacing: 0.6px; margin-bottom: 0.35rem;">Articles commandés :</div>
                     {% for item in order.items %}
-                    <div style="display: flex; justify-content: space-between; font-size: 0.88rem; padding: 0.15rem 0;">
-                        <span><strong style="color: var(--accent-color);">{{ item.quantity }}×</strong> {{ item.pizza.name if item.pizza else 'Article #' ~ item.pizza_id }}</span>
+                    <div style="font-size: 0.88rem; padding: 0.2rem 0; border-bottom: 1px solid rgba(255,255,255,0.03);">
+                        <div><strong style="color: var(--accent-color);">{{ item.quantity }}×</strong> {{ item.pizza.name if item.pizza else 'Article #' ~ item.pizza_id }}</div>
+                        {% if item.customizations %}
+                        <div style="font-size: 0.72rem; color: var(--text-muted); padding-left: 1.2rem;">{{ item.customizations }}</div>
+                        {% endif %}
                     </div>
                     {% else %}
                     <div style="font-size: 0.8rem; color: var(--text-muted);">Aucun détail d'article</div>
@@ -123,8 +126,11 @@
                 <div style="background: rgba(9, 13, 22, 0.6); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 0.65rem 0.8rem; margin-bottom: 0.85rem;">
                     <div style="font-size: 0.68rem; text-transform: uppercase; color: var(--text-muted); font-weight: 800; letter-spacing: 0.6px; margin-bottom: 0.35rem;">Recettes à confectionner :</div>
                     {% for item in order.items %}
-                    <div style="display: flex; justify-content: space-between; font-size: 0.92rem; font-weight: 700; padding: 0.18rem 0;">
-                        <span><strong style="color: var(--accent-color);">{{ item.quantity }}×</strong> {{ item.pizza.name if item.pizza else 'Article #' ~ item.pizza_id }}</span>
+                    <div style="font-size: 0.92rem; font-weight: 700; padding: 0.2rem 0;">
+                        <div><strong style="color: var(--accent-color);">{{ item.quantity }}×</strong> {{ item.pizza.name if item.pizza else 'Article #' ~ item.pizza_id }}</div>
+                        {% if item.customizations %}
+                        <div style="font-size: 0.74rem; color: var(--text-muted); font-weight: 500; padding-left: 1.2rem;">{{ item.customizations }}</div>
+                        {% endif %}
                     </div>
                     {% endfor %}
                 </div>
@@ -163,8 +169,11 @@
                 <!-- Order Items List -->
                 <div style="background: rgba(9, 13, 22, 0.6); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 0.65rem 0.8rem; margin-bottom: 0.85rem;">
                     {% for item in order.items %}
-                    <div style="display: flex; justify-content: space-between; font-size: 0.92rem; font-weight: 700; padding: 0.18rem 0;">
-                        <span><strong style="color: var(--accent-color);">{{ item.quantity }}×</strong> {{ item.pizza.name if item.pizza else 'Article #' ~ item.pizza_id }}</span>
+                    <div style="font-size: 0.92rem; font-weight: 700; padding: 0.2rem 0;">
+                        <div><strong style="color: var(--accent-color);">{{ item.quantity }}×</strong> {{ item.pizza.name if item.pizza else 'Article #' ~ item.pizza_id }}</div>
+                        {% if item.customizations %}
+                        <div style="font-size: 0.74rem; color: var(--text-muted); font-weight: 500; padding-left: 1.2rem;">{{ item.customizations }}</div>
+                        {% endif %}
                     </div>
                     {% endfor %}
                 </div>
